@@ -8,10 +8,11 @@ cd PostOpCare-POC
 
 ## Cand incepi sa lucrezi la ceva
 ```bash
-# trage ultimele modificari de pe github
-git fetch && git pull
+# mergi pe branch-ul main si trage ultimele modificari de pe github
+git checkout main
+git pull
 
-# creeaza un branch nou pt task-ul tau
+# creeaza un branch nou pt task-ul tau din main-ul actualizat
 # format: initiale-ce-faci
 git checkout -b dg-autentificare-medic
 ```
@@ -36,7 +37,7 @@ Dupa push o sa apara un link in terminal pt pull request. Daca nu, mergi pe gith
 
 ## Reguli simple
 - Nu lucra direct pe `main`
-- Trage mereu cu `git fetch && git pull` inainte sa incepi ceva nou
+- Inainte sa incepi ceva nou: mergi pe `main` (`git checkout main`) si actualizeaza-l (`git pull`)
 - Scrie mesaje de commit care au sens, nu "update" sau "fix"
 - Un branch = un task
 - Cere review la pull request-uri
