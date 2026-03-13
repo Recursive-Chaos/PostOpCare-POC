@@ -17,3 +17,6 @@ cd web && npm install && npm run dev
 # mobile (ruleaza in browser pt dev)
 cd mobile && npm install && npx expo start
 ```
+
+# Documentatie:
+- /documentatie/git.md
