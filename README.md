@@ -18,5 +18,5 @@ cd web && npm install && npm run dev
 cd mobile && npm install && npx expo start
 ```
 
-# Documentatie:
-- /documentatie/git.md
+## Documentatie
+- [documentatie/git.md](documentatie/git.md)
