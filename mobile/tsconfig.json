@@ -1,6 +1,10 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "paths": {
+      "@shared": ["../shared/index.ts"], // ca sa putem importa din @shared
+      "@shared/*": ["../shared/*"]
+    }
   }
 }
