@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "description": "PostOpCare backend API — Node.js + Express + TypeScript",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "seed": "tsx seed.js",
     "lint": "eslint src/"
   },
   "dependencies": {
@@ -15,7 +17,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "helmet": "^8.0.0",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
