@@ -1,0 +1,36 @@
+{
+  "name": "postopcare-poc",
+  "version": "1.0.0",
+  "description": "Aplicatie pentru monitorizarea pacientilor postoperator.",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky",
+    "test": "npm test --prefix web && npm test --prefix server"
+  },
+  "lint-staged": {
+    "web/src/**/*.{ts,tsx,js,jsx}": [
+      "npm run lint --prefix web",
+      "npm test --prefix web -- --run"
+    ],
+    "server/src/**/*.{ts,js}": [
+      "npm run lint --prefix server",
+      "npm test --prefix server -- --run"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Recursive-Chaos/PostOpCare-POC.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Recursive-Chaos/PostOpCare-POC/issues"
+  },
+  "homepage": "https://github.com/Recursive-Chaos/PostOpCare-POC#readme",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0"
+  }
+}

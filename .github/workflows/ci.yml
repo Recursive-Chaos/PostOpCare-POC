@@ -1,0 +1,93 @@
+name: PostOpCare CI
+
+on:
+  push:
+    branches: [ main, master, dev ]
+  pull_request:
+    branches: [ main, master, dev ]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  test-web:
+    name: Teste web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+
+      - name: Instaleaza web
+        run: |
+          cd web
+          npm ci
+
+      - name: Verificare Lint Web
+        run: |
+          cd web
+          npm run lint
+
+      - name: Ruleaza testele de web
+        run: |
+          cd web
+          npm test > ../web-results.txt 2>&1 || (echo "FAILED=true" >> $GITHUB_ENV && cat ../web-results.txt)
+
+      - name: Comentariu web
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "### 🧪 Rezultate Teste Web" > web-comment.md
+          echo "\`\`\`" >> web-comment.md
+          cat web-results.txt >> web-comment.md
+          echo "\`\`\`" >> web-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file web-comment.md
+
+  test-server:
+    name: Teste server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Instaleaza server
+        run: |
+          cd server
+          npm ci
+
+      - name: Verificare Lint Server
+        run: |
+          cd server
+          npm run lint
+
+      - name: Ruleaza testele de server
+        run: |
+          cd server
+          npm test > ../server-results.txt 2>&1 || (echo "FAILED=true" >> $GITHUB_ENV && cat ../server-results.txt)
+
+      - name: Comentariu server
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "### 🖥️ Rezultate Teste Server" > server-comment.md
+          echo "\`\`\`" >> server-comment.md
+          cat server-results.txt >> server-comment.md
+          echo "\`\`\`" >> server-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file server-comment.md
+          
+          # Oprim workflow-ul cu eroare daca pica testele
+          if [ "${{ env.FAILED }}" == "true" ]; then exit 1; fi

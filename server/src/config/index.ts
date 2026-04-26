@@ -12,4 +12,9 @@ export const config = {
     user: process.env.DB_USER || "",
     password: process.env.DB_PASSWORD || "",
   },
+  supabase: {
+    url: process.env.SUPABASE_URL || "",
+    anonKey: process.env.SUPABASE_ANON_KEY || "",
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
+  },
 } as const;
