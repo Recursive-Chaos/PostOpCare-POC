@@ -27,7 +27,7 @@ jobs:
       - name: Instaleaza web
         run: |
           cd web
-          npm ci
+          npm install --legacy-peer-deps
 
       - name: Verificare Lint Web
         run: |
@@ -66,7 +66,7 @@ jobs:
       - name: Instaleaza server
         run: |
           cd server
-          npm ci
+          npm install --legacy-peer-deps
 
       - name: Verificare Lint Server
         run: |
