@@ -19,4 +19,5 @@ cd mobile && npm install && npx expo start
 ```
 
 ## Documentatie
+- [documentatie/plan_proiect.md](documentatie/plan_proiect.md)
 - [documentatie/git.md](documentatie/git.md)
