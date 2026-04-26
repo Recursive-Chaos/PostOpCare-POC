@@ -82,7 +82,7 @@ jobs:
         run: |
           cd server
           # Dezactivam culorile pentru log-uri curate
-          npm test -- --no-color --reporter=basic > ../server-results.txt 2>&1 || (echo "SERVER_FAILED=true" >> $GITHUB_ENV)
+          npm test -- --no-color --reporter=default > ../server-results.txt 2>&1 || (echo "SERVER_FAILED=true" >> $GITHUB_ENV)
           cat ../server-results.txt
 
       - name: Comentariu server
