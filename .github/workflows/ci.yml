@@ -37,7 +37,8 @@ jobs:
       - name: Ruleaza testele de web
         run: |
           cd web
-          npm test > ../web-results.txt 2>&1 || (echo "FAILED=true" >> $GITHUB_ENV && cat ../web-results.txt)
+          npm test -- --no-color --reporter=basic > ../web-results.txt 2>&1 || (echo "WEB_FAILED=true" >> $GITHUB_ENV)
+          cat ../web-results.txt
 
       - name: Comentariu web
         if: github.event_name == 'pull_request'
@@ -49,6 +50,10 @@ jobs:
           cat web-results.txt >> web-comment.md
           echo "\`\`\`" >> web-comment.md
           gh pr comment ${{ github.event.pull_request.number }} --body-file web-comment.md
+
+      - name: Fail if web tests failed
+        if: env.WEB_FAILED == 'true'
+        run: exit 1
 
   test-server:
     name: Teste server
@@ -76,7 +81,9 @@ jobs:
       - name: Ruleaza testele de server
         run: |
           cd server
-          npm test > ../server-results.txt 2>&1 || (echo "FAILED=true" >> $GITHUB_ENV && cat ../server-results.txt)
+          # Dezactivam culorile pentru log-uri curate
+          npm test -- --no-color --reporter=basic > ../server-results.txt 2>&1 || (echo "SERVER_FAILED=true" >> $GITHUB_ENV)
+          cat ../server-results.txt
 
       - name: Comentariu server
         if: github.event_name == 'pull_request'
@@ -88,6 +95,7 @@ jobs:
           cat server-results.txt >> server-comment.md
           echo "\`\`\`" >> server-comment.md
           gh pr comment ${{ github.event.pull_request.number }} --body-file server-comment.md
-          
-          # Oprim workflow-ul cu eroare daca pica testele
-          if [ "${{ env.FAILED }}" == "true" ]; then exit 1; fi
+
+      - name: Fail if server tests failed
+        if: env.SERVER_FAILED == 'true'
+        run: exit 1

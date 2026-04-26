@@ -10,11 +10,11 @@
   "lint-staged": {
     "web/src/**/*.{ts,tsx,js,jsx}": [
       "npm run lint --prefix web",
-      "npm test --prefix web -- --run"
+      "npm test --prefix web -- related --run --passWithNoTests"
     ],
     "server/src/**/*.{ts,js}": [
       "npm run lint --prefix server",
-      "npm test --prefix server -- --run"
+      "npm test --prefix server -- related --run --passWithNoTests"
     ]
   },
   "repository": {

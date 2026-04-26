@@ -33,12 +33,16 @@ export default function LoginPage() {
       if (!email) return setError(t("emptyEmailError"));
       setLoading(true);
       try {
-        await fetch(`${API_URL}/auth/doctor/request-code`, {
+        const res = await fetch(`${API_URL}/auth/doctor/request-code`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
         });
-        setStep("code");
+        if (!res.ok) {
+          setError(t("connError"));
+        } else {
+          setStep("code");
+        }
       } catch {
         setError(t("connError"));
       }
@@ -53,7 +57,11 @@ export default function LoginPage() {
           body: JSON.stringify({ email, code }),
         });
 
-        if (!res.ok) return setError(t("invalidCode"));
+        if (!res.ok) {
+          setError(t("invalidCode"));
+          setLoading(false);
+          return;
+        }
         
         const data = await res.json();
         localStorage.setItem("session", JSON.stringify(data.session));
@@ -61,8 +69,8 @@ export default function LoginPage() {
         router.push("/");
       } catch {
         setError(t("connError"));
+        setLoading(false);
       }
-      setLoading(false);
     }
   }
 

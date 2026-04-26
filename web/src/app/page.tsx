@@ -15,15 +15,20 @@ export default function HomePage() {
     if (!userData) {
       router.push("/login");
     } else {
-      const parsed = JSON.parse(userData);
-      // Daca cumva un pacient a ajuns aici, il scoatem afara (web e doar pt medici)
-      if (parsed.role !== "doctor") {
+      try {
+        const parsed = JSON.parse(userData);
+        if (parsed.role !== "doctor") {
+          localStorage.removeItem("user");
+          localStorage.removeItem("session");
+          router.push("/login");
+        } else {
+          setUser(parsed);
+          setLoading(false);
+        }
+      } catch {
         localStorage.removeItem("user");
         localStorage.removeItem("session");
         router.push("/login");
-      } else {
-        setUser(parsed);
-        setLoading(false);
       }
     }
   }, [router]);

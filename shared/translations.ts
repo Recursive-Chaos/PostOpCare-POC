@@ -1,5 +1,5 @@
 // toate textele din aplicatie sunt aici
-// t("save") => "Salveaza"
+// t("loading") => "Se incarca..."
 
 
 const ro = {
@@ -24,6 +24,7 @@ const ro = {
   dobLabel: "Data nasterii:",
   connError: "Eroare de conexiune.",
   invalidCode: "Cod invalid.",
+  loading: "Se incarca...",
   emptyEmailError: "Te rog sa introduci un email.",
   emptyCodeError: "Te rog sa introduci codul.",
 
