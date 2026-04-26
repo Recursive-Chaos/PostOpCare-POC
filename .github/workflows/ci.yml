@@ -1,0 +1,101 @@
+name: PostOpCare CI
+
+on:
+  push:
+    branches: [ main, master, dev ]
+  pull_request:
+    branches: [ main, master, dev ]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  test-web:
+    name: Teste web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+
+      - name: Instaleaza web
+        run: |
+          cd web
+          npm install --legacy-peer-deps
+
+      - name: Verificare Lint Web
+        run: |
+          cd web
+          npm run lint
+
+      - name: Ruleaza testele de web
+        run: |
+          cd web
+          npm test -- --no-color --reporter=default > ../web-results.txt 2>&1 || (echo "WEB_FAILED=true" >> $GITHUB_ENV)
+          cat ../web-results.txt
+
+      - name: Comentariu web
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "### 🧪 Rezultate Teste Web" > web-comment.md
+          echo "\`\`\`" >> web-comment.md
+          cat web-results.txt >> web-comment.md
+          echo "\`\`\`" >> web-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file web-comment.md
+
+      - name: Fail if web tests failed
+        if: env.WEB_FAILED == 'true'
+        run: exit 1
+
+  test-server:
+    name: Teste server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Instaleaza server
+        run: |
+          cd server
+          npm install --legacy-peer-deps
+
+      - name: Verificare Lint Server
+        run: |
+          cd server
+          npm run lint
+
+      - name: Ruleaza testele de server
+        run: |
+          cd server
+          # Dezactivam culorile pentru log-uri curate
+          npm test -- --no-color --reporter=default > ../server-results.txt 2>&1 || (echo "SERVER_FAILED=true" >> $GITHUB_ENV)
+          cat ../server-results.txt
+
+      - name: Comentariu server
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "### 🖥️ Rezultate Teste Server" > server-comment.md
+          echo "\`\`\`" >> server-comment.md
+          cat server-results.txt >> server-comment.md
+          echo "\`\`\`" >> server-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file server-comment.md
+
+      - name: Fail if server tests failed
+        if: env.SERVER_FAILED == 'true'
+        run: exit 1

@@ -1,0 +1,50 @@
+.wrapper {
+  max-width: 500px;
+  margin: 80px auto;
+  padding: 0 20px;
+}
+
+.logo {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 40px;
+  color: #888;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.metaRow span {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.metaRow strong {
+  font-weight: 600;
+}
+
+.button {
+  margin-top: 40px;
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.button:hover {
+  background: #f9f9f9;
+  border-color: #ccc;
+}

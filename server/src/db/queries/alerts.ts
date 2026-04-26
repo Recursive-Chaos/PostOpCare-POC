@@ -1,4 +1,4 @@
-import type { Alert } from "../../../../shared/types";
+import type { Alert } from "../../../../shared/types.js";
 import db from "../index.js";
 
 // alertele unui pacient specific
