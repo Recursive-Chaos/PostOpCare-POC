@@ -37,7 +37,7 @@ jobs:
       - name: Ruleaza testele de web
         run: |
           cd web
-          npm test -- --no-color --reporter=basic > ../web-results.txt 2>&1 || (echo "WEB_FAILED=true" >> $GITHUB_ENV)
+          npm test -- --no-color --reporter=default > ../web-results.txt 2>&1 || (echo "WEB_FAILED=true" >> $GITHUB_ENV)
           cat ../web-results.txt
 
       - name: Comentariu web
