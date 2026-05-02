@@ -5,6 +5,8 @@ import { config } from "./config/index.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import db from "./db/index.js";
 import authRouter from "./routes/auth/index.js";
+import doctorPatientsRouter from "./routes/doctor/patients.js";
+import doctorQuestionnairesRouter from "./routes/doctor/questionnaires.js";
 
 const app = express();
 
@@ -25,6 +27,8 @@ app.get("/db-test", async (_req, res) => {
 
 // rutare auth
 app.use("/auth", authRouter);
+app.use("/doctor/patients", doctorPatientsRouter);
+app.use("/doctor/questionnaires", doctorQuestionnairesRouter);
 
 
 app.use(errorHandler);

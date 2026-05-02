@@ -1,0 +1,119 @@
+.wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.loading {
+  padding: 40px;
+  color: #888;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 40px;
+  height: 60px;
+  border-bottom: 1px solid #ebebeb;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.logo {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.doctor {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border-left: 1px solid #e5e7eb;
+  padding-left: 20px;
+}
+
+.doctorName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.doctorSpec {
+  font-size: 0.75rem;
+  color: #888;
+  line-height: 1.2;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.navLink {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #555;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navLink:hover {
+  background: #f3f4f6;
+  color: #111;
+}
+
+.signOutBtn {
+  padding: 6px 14px;
+  border: none;
+  border-left: 1px solid #e5e7eb;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #888;
+  margin-left: 8px;
+  transition: color 0.15s;
+}
+
+.signOutBtn:hover {
+  color: #111;
+}
+
+.main {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 36px 40px;
+  display: grid;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .header { padding: 0 20px; gap: 12px; }
+  .doctor { display: none; }
+  .main { padding: 24px 20px; }
+}
+
+@media (max-width: 480px) {
+  .header { padding: 10px 16px; height: auto; flex-wrap: wrap; gap: 8px; }
+  .headerLeft { gap: 12px; flex: 1; }
+  .nav { order: 3; width: 100%; margin-left: 0; justify-content: center; overflow-x: auto; }
+  .signOutBtn { border-left: none; margin-left: 0; }
+  .main { padding: 16px; }
+}

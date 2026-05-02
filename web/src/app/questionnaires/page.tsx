@@ -1,48 +1,49 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AppLayout from "./components/AppLayout";
-import styles from "./page.module.css";
+import AppLayout from "../components/AppLayout";
+import styles from "../page.module.css";
 import { t } from "@shared/translations";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
-export default function HomePage() {
-  const [patients, setPatients] = useState<any[]>([]);
+export default function QuestionnairesPage() {
+  const [templates, setTemplates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // fetch la lista de chestionare (templates)
   useEffect(() => {
-    async function fetchPatients() {
+    async function fetchTemplates() {
       try {
         const session = JSON.parse(localStorage.getItem("session") ?? "{}");
-        const res = await fetch(`${API_URL}/doctor/patients`, {
+        const res = await fetch(`${API_URL}/doctor/questionnaires`, {
           headers: {
             Authorization: `Bearer ${session.access_token}`,
           },
         });
         if (res.ok) {
           const data = await res.json();
-          setPatients(data);
+          setTemplates(data);
         }
       } catch (err) {
-        console.error("Failed to fetch patients:", err);
+        console.error("Failed to fetch questionnaire templates:", err);
       } finally {
         setLoading(false);
       }
     }
-    fetchPatients();
+    fetchTemplates();
   }, []);
 
   return (
     <AppLayout>
       <section className={styles.section}>
         <div>
-          <h2>{t("patientsTitle")}</h2>
+          <h2>{t("questionnairesTitle")}</h2>
           {loading ? (
             <p>{t("loading")}</p>
           ) : (
             <pre style={{ background: "#f5f5f5", padding: "12px", borderRadius: "8px", overflow: "auto", fontSize: "12px" }}>
-              {JSON.stringify(patients, null, 2)}
+              {JSON.stringify(templates, null, 2)}
             </pre>
           )}
         </div>

@@ -1,9 +1,4 @@
-// toate textele din aplicatie sunt aici
-// t("loading") => "Se incarca..."
-
-
 const ro = {
-
   // auth
   loginTitle: "Autentificare",
   loginSubtitle: "Introdu adresa de email pentru a primi un cod.",
@@ -28,15 +23,43 @@ const ro = {
   emptyEmailError: "Te rog sa introduci un email.",
   emptyCodeError: "Te rog sa introduci codul.",
 
-  // home
-  homeTitle: "Acasa",
+  // nav / general
   signOutBtn: "Deconectare",
-  greeting: "Salut,",
+
+  // home
+  patientsTitle: "Pacienti",
+
+  // questionnaires
+  questionnairesTitle: "Chestionare",
+
+  // invite
+  inviteTitle: "Invita pacient",
+  inviteSubmitBtn: "Invita",
+  inviteSubmitting: "Se trimite...",
+  inviteSuccess: "Pacientul a fost creat. Poate intra in aplicatia mobila cu acest email.",
+  inviteExisted: "Pacientul exista deja in sistem. Datele au fost actualizate.",
+  inviteError: "Eroare la trimiterea invitatiei.",
+  inviteConnError: "Eroare de conexiune cu serverul.",
+  fieldEmail: "Email pacient",
+  fieldEmailPlaceholder: "pacient@example.com",
+  fieldFirstName: "Prenume pacient",
+  fieldFirstNamePlaceholder: "Prenume",
+  fieldLastName: "Nume pacient",
+  fieldLastNamePlaceholder: "Nume",
+  fieldPhone: "Numar de telefon",
+  fieldPhonePlaceholder: "07xx xxx xxx",
+  fieldDob: "Data nasterii",
+  fieldNotes: "Note",
+  fieldNotesPlaceholder: "observatii",
+  fieldSurgeryType: "Tip operatie",
+  fieldSurgeryTypePlaceholder: "ex: Proteza de genunchi",
+  fieldSurgeryDate: "Data operatiei",
+  fieldDischargeDate: "Data externarii",
+  fieldMonitoringEnd: "Data final monitorizare",
 };
 
-// functia care returneaza valoarea unei chei
 export function t(key: keyof typeof ro): string {
   return ro[key] ?? key;
 }
 
-export default ro; // pe viitor returneaza valoarea selectata, momentan hardcoded asa.
+export default ro;
