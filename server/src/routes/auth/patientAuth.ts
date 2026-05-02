@@ -10,14 +10,15 @@ const GENERIC_RESPONSE = {
   message: "if the email is valid, a login code was sent",
 };
 
-// POST /auth/patient/request-code
+// endpoint pentru cererea codului
 router.post(
   "/request-code",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body as { email?: string };
+      const normalizedEmail = email?.trim().toLowerCase();
 
-      if (!email) {
+      if (!normalizedEmail) {
         // returnam ok si la eroare ca sa nu dam indicii
         res.json(GENERIC_RESPONSE);
         return;
@@ -27,7 +28,7 @@ router.post(
       const userResult = await db.query<{ user_id: string }>(
         `SELECT user_id FROM postopcare.users
          WHERE email = $1 AND role = 'patient' AND is_active = true`,
-        [email]
+        [normalizedEmail]
       );
 
       if (userResult.rows.length === 0) {
@@ -36,11 +37,16 @@ router.post(
         return;
       }
 
-      // trimite OTP via supabase, doar daca userul exista in auth.users
-      await supabase.auth.signInWithOtp({
-        email,
+      // trimite codul prin supabase
+      const { error } = await supabase.auth.signInWithOtp({
+        email: normalizedEmail,
         options: { shouldCreateUser: false },
       });
+
+      if (error) {
+        res.status(502).json({ error: "login code could not be sent" });
+        return;
+      }
 
       // ascundem mereu rezultatul operatiunii
       res.json(GENERIC_RESPONSE);
@@ -50,23 +56,24 @@ router.post(
   }
 );
 
-// POST /auth/patient/verify-code
+// endpoint pentru verificarea codului
 router.post(
   "/verify-code",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, code } = req.body as { email?: string; code?: string };
+      const normalizedEmail = email?.trim().toLowerCase();
 
-      if (!email || !code) {
+      if (!normalizedEmail || !code) {
         res.status(400).json({ error: "email and code are required" });
         return;
       }
 
       // valideaza codul primit
       const { data, error } = await supabase.auth.verifyOtp({
-        email,
+        email: normalizedEmail,
         token: code,
-        type: "magiclink",
+        type: "email",
       });
 
       if (error || !data.session || !data.user) {

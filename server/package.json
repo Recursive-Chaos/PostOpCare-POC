@@ -9,7 +9,6 @@
     "build": "tsc",
     "test": "vitest run",
     "start": "node dist/index.js",
-    "seed": "tsx seed.js",
     "lint": "eslint src/"
   },
   "dependencies": {

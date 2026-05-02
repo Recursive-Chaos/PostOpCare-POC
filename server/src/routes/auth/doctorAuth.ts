@@ -9,14 +9,15 @@ const GENERIC_RESPONSE = {
   message: "if the email is valid, a login code was sent",
 };
 
-// POST /auth/doctor/request-code
+// endpoint pentru cererea codului
 router.post(
   "/request-code",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body as { email?: string };
+      const normalizedEmail = email?.trim().toLowerCase();
 
-      if (!email) {
+      if (!normalizedEmail) {
         res.json(GENERIC_RESPONSE);
         return;
       }
@@ -25,7 +26,7 @@ router.post(
       const result = await db.query<{ user_id: string }>(
         `SELECT user_id FROM postopcare.users
          WHERE email = $1 AND role = 'doctor' AND is_active = true`,
-        [email]
+        [normalizedEmail]
       );
 
       if (result.rows.length === 0) {
@@ -34,10 +35,19 @@ router.post(
       }
 
       // trimite emailul cu codul
-      await supabase.auth.signInWithOtp({
-        email,
+      const { error } = await supabase.auth.signInWithOtp({
+        email: normalizedEmail,
         options: { shouldCreateUser: false },
       });
+
+      if (error) {
+        console.error(`OTP send failed: ${error.message}`);
+        const status = error.message.includes("rate limit") ? 429 : 502;
+        res.status(status).json({ error: error.message });
+        return;
+      }
+
+      console.log(`OTP send accepted for ${normalizedEmail}`);
 
       res.json(GENERIC_RESPONSE);
     } catch (err) {
@@ -46,23 +56,24 @@ router.post(
   }
 );
 
-// POST /auth/doctor/verify-code
+// endpoint pentru verificarea codului
 router.post(
   "/verify-code",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, code } = req.body as { email?: string; code?: string };
+      const normalizedEmail = email?.trim().toLowerCase();
 
-      if (!email || !code) {
+      if (!normalizedEmail || !code) {
         res.status(400).json({ error: "email and code are required" });
         return;
       }
 
       // valideaza codul primit
       const { data, error } = await supabase.auth.verifyOtp({
-        email,
+        email: normalizedEmail,
         token: code,
-        type: "magiclink",
+        type: "email",
       });
 
       if (error || !data.session || !data.user) {
@@ -93,7 +104,7 @@ router.post(
         return;
       }
 
-      // ia datele specifice de medic si spitalul asociat
+      // ia datele de medic si spital
       const doctorResult = await db.query<{
         specialization: string;
         notification_pref: string;
