@@ -66,6 +66,54 @@ router.post(
       // telefonul este acum optional (poate fi NULL in baza de date)
       const phone = patientPhone?.trim() || null;
 
+      // Date validations
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Set to start of day for comparison
+
+      // Date of birth should not be in the future
+      if (dateOfBirth) {
+        const dob = new Date(dateOfBirth);
+        if (dob > today) {
+          res.status(409).json({ error: "invalidDateOfBirth" });
+          return;
+        }
+      }
+
+      // Surgery date must be in the past
+      if (surgeryDate) {
+        const surgery = new Date(surgeryDate);
+        if (surgery > today) {
+          res.status(409).json({ error: "invalidSurgeryDate" });
+          return;
+        }
+      }
+
+      // Discharge date: must be after surgery and not in the future
+      if (dischargeDate) {
+        const discharge = new Date(dischargeDate);
+        if (discharge > today) {
+          res.status(409).json({ error: "invalidDischargeDate" });
+          return;
+        }
+        if (surgeryDate) {
+          const surgery = new Date(surgeryDate);
+          if (discharge < surgery) {
+            res.status(409).json({ error: "invalidDischargeDate" });
+            return;
+          }
+        }
+      }
+
+      // Monitoring end date: must be after discharge date
+      if (monitoringEndDate && dischargeDate) {
+        const monitoringEnd = new Date(monitoringEndDate);
+        const discharge = new Date(dischargeDate);
+        if (monitoringEnd < discharge) {
+          res.status(409).json({ error: "invalidMonitoringEndDate" });
+          return;
+        }
+      }
+
       const doctorResult = await db.query<{ user_id: string }>(
         `SELECT user_id FROM postopcare.users
          WHERE user_id = $1 AND role = 'doctor' AND is_active = true`,
