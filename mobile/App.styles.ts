@@ -1,96 +1,258 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
+
+export const palette = {
+  primary: '#1B6B3A',
+  background: '#F7F9F7',
+  surface: '#FFFFFF',
+  surfaceMuted: '#F1F4F2',
+  textPrimary: '#0F1A14',
+  textSecondary: '#4F5B55',
+  textTertiary: '#8A948E',
+  border: '#E2E8E4',
+  warning: '#E59A3D',
+  danger: '#D14D4D',
+  low: '#3FA864',
+};
+
+const FONT = 'Roboto';
 
 export const styles = StyleSheet.create({
-  page: {
+  safeArea: {
     flex: 1,
-    backgroundColor: "#f0f4ff",
+    backgroundColor: palette.background,
   },
-  scroll: {
-    flexGrow: 1,
-    padding: 20,
-    paddingTop: 60,
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 40,
   },
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#dbe4f0",
-    padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  cardTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#1e293b",
-    marginBottom: 24,
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  formGroupHalf: {
-    flex: 1,
-  },
-  formRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: 6,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#dbe4f0",
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 15,
-    color: "#1e293b",
-    backgroundColor: "#ffffff",
-  },
-  submitButton: {
-    backgroundColor: "#2563eb",
-    borderRadius: 8,
-    padding: 14,
-    alignItems: "center",
+
+  greetingHello: {
+    fontFamily: FONT,
+    fontSize: 16,
+    color: palette.textSecondary,
     marginTop: 8,
   },
-  submitButtonDisabled: {
-    backgroundColor: "#93c5fd",
+  greetingName: {
+    fontFamily: FONT,
+    fontSize: 32,
+    fontWeight: '700',
+    color: palette.textPrimary,
+    marginTop: 2,
   },
-  submitButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
+
+  recoveryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 18,
+    flexWrap: 'wrap',
   },
-  toast: {
-    padding: 12,
-    borderRadius: 8,
+  recoveryDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: palette.low,
+    marginRight: 8,
+  },
+  recoveryText: {
+    fontFamily: FONT,
+    fontSize: 14,
+    color: palette.textSecondary,
+  },
+  recoveryDayNumber: {
+    fontFamily: FONT,
+    fontSize: 14,
+    color: palette.textPrimary,
+    fontWeight: '700',
+  },
+  recoverySeparator: {
+    width: 1,
+    height: 14,
+    backgroundColor: palette.border,
+    marginHorizontal: 12,
+  },
+  recoverySurgery: {
+    fontFamily: FONT,
+    fontSize: 14,
+    color: palette.textSecondary,
+  },
+
+  questionnaireCard: {
+    backgroundColor: palette.primary,
+    borderRadius: 18,
+    padding: 20,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+    overflow: 'hidden',
+  },
+  questionnaireHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  questionnaireLabel: {
+    fontFamily: FONT,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: 1.2,
+  },
+  questionnaireBadge: {
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+  questionnaireBadgeText: {
+    fontFamily: FONT,
+    fontSize: 12,
+    color: '#FFFFFF',
+    fontWeight: '500',
+  },
+  questionnaireTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  questionnaireTitle: {
+    fontFamily: FONT,
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    flex: 1,
+  },
+  questionnaireChevron: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  questionnaireChevronText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontFamily: FONT,
+    fontWeight: '600',
+  },
+
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: palette.surface,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     borderWidth: 1,
+    borderColor: palette.border,
+    marginBottom: 22,
   },
-  toastSuccess: {
-    backgroundColor: "#f0fdf4",
-    borderColor: "#bbf7d0",
-  },
-  toastSuccessText: {
-    color: "#16a34a",
+  searchInput: {
+    flex: 1,
+    fontFamily: FONT,
     fontSize: 14,
-    fontWeight: "500",
+    color: palette.textPrimary,
+    padding: 0,
   },
-  toastError: {
-    backgroundColor: "#fef2f2",
-    borderColor: "#fecaca",
+
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
   },
-  toastErrorText: {
-    color: "#dc2626",
-    fontSize: 14,
-    fontWeight: "500",
+  sectionTitle: {
+    fontFamily: FONT,
+    fontSize: 12,
+    fontWeight: '700',
+    color: palette.textSecondary,
+    letterSpacing: 1.2,
+  },
+  sectionMeta: {
+    fontFamily: FONT,
+    fontSize: 12,
+    color: palette.textTertiary,
+  },
+
+  historyCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: palette.surface,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: palette.border,
+  },
+  historyDateBox: {
+    width: 52,
+    height: 52,
+    borderRadius: 12,
+    backgroundColor: palette.surfaceMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  historyDay: {
+    fontFamily: FONT,
+    fontSize: 20,
+    fontWeight: '700',
+    color: palette.textPrimary,
+    lineHeight: 22,
+  },
+  historyMonth: {
+    fontFamily: FONT,
+    fontSize: 10,
+    fontWeight: '700',
+    color: palette.textTertiary,
+    letterSpacing: 1,
+    marginTop: 2,
+  },
+  historyBody: {
+    flex: 1,
+  },
+  historyWeekdayRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginBottom: 4,
+  },
+  historyWeekday: {
+    fontFamily: FONT,
+    fontSize: 15,
+    fontWeight: '600',
+    color: palette.textPrimary,
+    marginRight: 6,
+  },
+  historyMetricsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  historyMetric: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  historyMetricDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  historyMetricText: {
+    fontFamily: FONT,
+    fontSize: 13,
+    color: palette.textSecondary,
+  },
+  historyChevron: {
+    fontFamily: FONT,
+    fontSize: 18,
+    color: palette.textTertiary,
+    marginLeft: 6,
   },
 });
