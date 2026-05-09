@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 export const palette = {
   primary: '#1B6B3A',
@@ -14,7 +14,12 @@ export const palette = {
   low: '#3FA864',
 };
 
-const FONT = 'Roboto';
+const FONT = Platform.select({
+  ios: 'System',
+  android: 'Roboto',
+  web: 'sans-serif',
+  default: 'System'
+});
 
 export const styles = StyleSheet.create({
   safeArea: {
@@ -27,11 +32,16 @@ export const styles = StyleSheet.create({
     paddingBottom: 40,
   },
 
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
   greetingHello: {
     fontFamily: FONT,
     fontSize: 16,
     color: palette.textSecondary,
-    marginTop: 8,
   },
   greetingName: {
     fontFamily: FONT,
@@ -39,6 +49,18 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     color: palette.textPrimary,
     marginTop: 2,
+  },
+  logoutButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: palette.surfaceMuted,
+    borderRadius: 8,
+  },
+  logoutText: {
+    fontFamily: FONT,
+    fontSize: 14,
+    color: palette.danger,
+    fontWeight: '600',
   },
 
   recoveryRow: {
@@ -254,5 +276,78 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     color: palette.textTertiary,
     marginLeft: 6,
+  },
+  // Auth Styles
+  authContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  authTitle: {
+    fontFamily: FONT,
+    fontSize: 28,
+    fontWeight: '700',
+    color: palette.textPrimary,
+    marginBottom: 8,
+  },
+  authSubtitle: {
+    fontFamily: FONT,
+    fontSize: 16,
+    color: palette.textSecondary,
+    marginBottom: 32,
+  },
+  authInputContainer: {
+    marginBottom: 24,
+  },
+  authLabel: {
+    fontFamily: FONT,
+    fontSize: 14,
+    fontWeight: '600',
+    color: palette.textPrimary,
+    marginBottom: 8,
+  },
+  authInput: {
+    backgroundColor: palette.surface,
+    borderWidth: 1,
+    borderColor: palette.border,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: palette.textPrimary,
+    fontFamily: FONT,
+  },
+  authError: {
+    color: palette.danger,
+    fontSize: 14,
+    fontFamily: FONT,
+    marginBottom: 16,
+    marginTop: -8,
+  },
+  authButton: {
+    backgroundColor: palette.primary,
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  authButtonDisabled: {
+    opacity: 0.7,
+  },
+  authButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: FONT,
+  },
+  authBackButton: {
+    marginTop: 16,
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  authBackButtonText: {
+    color: palette.textSecondary,
+    fontSize: 15,
+    fontFamily: FONT,
+    fontWeight: '500',
   },
 });

@@ -5,12 +5,12 @@ import db from "../../db/index.js";
 
 const router = Router();
 
-// mesaj generic, nu vrem sa aflam daca mailul exista sau nu
+// mesaj generic, nu vrem sa afisam daca mailul exista sau nu
 const GENERIC_RESPONSE = {
   message: "if the email is valid, a login code was sent",
 };
 
-// endpoint pentru cererea codului
+// endpoint pt cererea codului
 router.post(
   "/request-code",
   async (req: Request, res: Response, next: NextFunction) => {
@@ -44,11 +44,13 @@ router.post(
       });
 
       if (error) {
-        res.status(502).json({ error: "login code could not be sent" });
+        console.error(`OTP send failed for ${normalizedEmail}: ${error.message}`);
+        const status = error.message.toLowerCase().includes("rate limit") ? 429 : 502;
+        res.status(status).json({ error: error.message });
         return;
       }
 
-      // ascundem mereu rezultatul operatiunii
+      // ascundem rezultatul operatiunii pt ca 
       res.json(GENERIC_RESPONSE);
     } catch (err) {
       next(err);
@@ -72,11 +74,12 @@ router.post(
       // valideaza codul primit
       const { data, error } = await supabase.auth.verifyOtp({
         email: normalizedEmail,
-        token: code,
+        token: code.trim(),
         type: "email",
       });
 
       if (error || !data.session || !data.user) {
+        console.error(`Verify OTP Error for ${normalizedEmail}:`, error?.message || 'No session/user');
         res.status(401).json({ error: "invalid or expired code" });
         return;
       }
@@ -117,6 +120,25 @@ router.post(
 
       const patient = patientResult.rows[0];
 
+      // procedura medicala
+      const procedureResult = await db.query<{
+        surgery_type: string;
+        surgery_date: string;
+      }>(
+        `SELECT surgery_type, surgery_date FROM postopcare.procedures WHERE patient_id = $1 ORDER BY surgery_date DESC LIMIT 1`,
+        [userId]
+      );
+      const procedure = procedureResult.rows[0];
+
+      // calculeaza ziua de recuperare
+      let recoveryDay = null;
+      if (procedure?.surgery_date) {
+        const today = new Date();
+        const surgeryDate = new Date(procedure.surgery_date);
+        const diffTime = Math.abs(today.getTime() - surgeryDate.getTime());
+        recoveryDay = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      }
+
       res.json({
         session: data.session,
         user: {
@@ -129,6 +151,8 @@ router.post(
         patient: {
           doctorId: patient?.doctor_id ?? null,
           dateOfBirth: patient?.date_of_birth ?? null,
+          surgeryType: procedure?.surgery_type ?? null,
+          recoveryDay: recoveryDay,
         },
       });
     } catch (err) {

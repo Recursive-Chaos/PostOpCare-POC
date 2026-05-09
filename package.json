@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "prepare": "husky",
-    "test": "npm test --prefix web && npm test --prefix server"
+    "test": "npm test --prefix web && npm test --prefix server && npm test --prefix mobile"
   },
   "lint-staged": {
     "web/src/**/*.{ts,tsx,js,jsx}": [
@@ -15,6 +15,9 @@
     "server/src/**/*.{ts,js}": [
       "npm run lint --prefix server",
       "npm test --prefix server -- related --run --passWithNoTests"
+    ],
+    "mobile/**/*.{ts,tsx,js,jsx}": [
+      "npm test --prefix mobile -- --findRelatedTests --passWithNoTests"
     ]
   },
   "repository": {
