@@ -7,7 +7,7 @@ PostOpCare (POC) este un proiect pentru monitorizarea pacientilor dupa operatie.
 *   **Mobile (Pacient):** React Native cu Expo
 *   **Backend:** Node.js + Express
 *   **Baza de date & Auth:** Supabase (PostgreSQL)
-*   **Hosting:** Vercel (Web) si Railway (Backend)
+*   **Hosting:** Vercel (Web) si northflank (Backend)
 
 ## Status
 

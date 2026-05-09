@@ -1,3 +1,3 @@
-export { t } from "./translations";
-export type { Role, Severity, User, Doctor, Patient, Procedure, CheckIn, Alert } from "./types";
-export * from "./constants";
+export { t } from "./translations.js";
+export type { Role, Severity, User, Doctor, Patient, Procedure, CheckIn, Alert } from "./types.js";
+export * from "./constants.js";
