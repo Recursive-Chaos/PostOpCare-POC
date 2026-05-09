@@ -1,4 +1,4 @@
-import type { CheckIn } from "../../../../shared/types.js";
+import type { CheckIn } from "../../types/index.js";
 import db from "../index.js";
 
 export async function getCheckinsByPatient(patientId: string): Promise<CheckIn[]> {

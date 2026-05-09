@@ -1,4 +1,4 @@
-import type { Patient } from "../../../../shared/types.js";
+import type { Patient } from "../../types/index.js";
 import db from "../index.js";
 
 // pacientii unui medic
