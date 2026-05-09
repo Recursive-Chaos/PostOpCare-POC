@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { t } from "@shared/translations";
 import { useRouter } from "next/navigation";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+import { API_URL } from "../lib/api";
 
 type Step = "email" | "code" | "success";
 
