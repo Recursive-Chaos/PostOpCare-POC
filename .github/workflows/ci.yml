@@ -40,16 +40,20 @@ jobs:
           npm test -- --no-color --reporter=default > ../web-results.txt 2>&1 || (echo "WEB_FAILED=true" >> $GITHUB_ENV)
           cat ../web-results.txt
 
-      - name: Comentariu web
+      - name: Pregatire comentariu web
         if: github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "### 🧪 Rezultate Teste Web" > web-comment.md
           echo "\`\`\`" >> web-comment.md
           cat web-results.txt >> web-comment.md
           echo "\`\`\`" >> web-comment.md
-          gh pr comment ${{ github.event.pull_request.number }} --body-file web-comment.md
+
+      - name: Comentariu web
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: web-results
+          path: web-comment.md
 
       - name: Fail if web tests failed
         if: env.WEB_FAILED == 'true'
@@ -85,16 +89,20 @@ jobs:
           npm test -- --no-color --reporter=default > ../server-results.txt 2>&1 || (echo "SERVER_FAILED=true" >> $GITHUB_ENV)
           cat ../server-results.txt
 
-      - name: Comentariu server
+      - name: Pregatire comentariu server
         if: github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "### 🖥️ Rezultate Teste Server" > server-comment.md
           echo "\`\`\`" >> server-comment.md
           cat server-results.txt >> server-comment.md
           echo "\`\`\`" >> server-comment.md
-          gh pr comment ${{ github.event.pull_request.number }} --body-file server-comment.md
+
+      - name: Comentariu server
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: server-results
+          path: server-comment.md
 
       - name: Fail if server tests failed
         if: env.SERVER_FAILED == 'true'
@@ -124,16 +132,20 @@ jobs:
           npm test -- --no-color --reporter=default > ../mobile-results.txt 2>&1 || (echo "MOBILE_FAILED=true" >> $GITHUB_ENV)
           cat ../mobile-results.txt
 
-      - name: Comentariu mobile
+      - name: Pregatire comentariu mobile
         if: github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "### 📱 Rezultate Teste Mobile" > mobile-comment.md
           echo "\`\`\`" >> mobile-comment.md
           cat mobile-results.txt >> mobile-comment.md
           echo "\`\`\`" >> mobile-comment.md
-          gh pr comment ${{ github.event.pull_request.number }} --body-file mobile-comment.md
+
+      - name: Comentariu mobile
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: mobile-results
+          path: mobile-comment.md
 
       - name: Fail if mobile tests failed
         if: env.MOBILE_FAILED == 'true'
