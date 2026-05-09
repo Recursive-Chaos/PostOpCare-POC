@@ -6,18 +6,18 @@ import meRouter from "./me.js";
 
 const router = Router();
 
-// 10 incercari pe 15 min per IP pentru login
+// 10 incercari pe 5 min per IP pentru login
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 5 * 60 * 1000,
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "prea multe cereri, incearca mai tarziu" },
 });
 
-// 5 request-uri OTP per 15 min per IP - mai restrictiv pentru ca trimite email-uri
+// 5 request-uri OTP per 5 min per IP
 const otpLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 5 * 60 * 1000,
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,

@@ -164,25 +164,6 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: palette.surface,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: palette.border,
-    marginBottom: 22,
-  },
-  searchInput: {
-    flex: 1,
-    fontFamily: FONT,
-    fontSize: 14,
-    color: palette.textPrimary,
-    padding: 0,
-  },
-
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
