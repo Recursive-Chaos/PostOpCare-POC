@@ -37,11 +37,8 @@ export default function DashboardScreen({ user, onLogout }: Props) {
       testID="dashboard-container"
     >
       <Header user={user} patient={user} onLogout={onLogout} />
-
       <RecoveryStatus patient={user} />
-
       <QuestionnaireCard status={dailyQuestionnaire.status} />
-
       <SearchBar search={search} onSearchChange={setSearch} />
 
       <View style={styles.sectionHeader}>
