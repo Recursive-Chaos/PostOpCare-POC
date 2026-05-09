@@ -7,7 +7,7 @@ PostOpCare (POC) este un proiect pentru monitorizarea pacientilor dupa operatie.
 *   **Mobile (Pacient):** React Native cu Expo
 *   **Backend:** Node.js + Express
 *   **Baza de date & Auth:** Supabase (PostgreSQL)
-*   **Hosting:** Vercel (Web) si Railway (Backend)
+*   **Hosting:** Vercel (Web) si northflank (Backend)
 
 ## Status
 
@@ -20,20 +20,20 @@ PostOpCare (POC) este un proiect pentru monitorizarea pacientilor dupa operatie.
 ### 2. Autentificare (Auth)
 - [x] Login Medic: sistem cu cod primit pe email (OTP)
 - [x] Protectie rute: medicii nu pot intra pe rute de pacienti si invers (backend checks)
-- [ ] Login Pacient: inregistrare cu cod de invitatie de la medic
-- [ ] Persistenta sesiune: sa nu te dea afara la refresh
+- [x] Login Pacient: inregistrare cu cod de invitatie de la medic
+- [x] Persistenta sesiune: sa nu te dea afara la refresh
 
 ### 3. Dashboard Medic (Web)
 - [x] Pagina de Login (minimalista, fara diacritice)
 - [x] Homepage simplu (Logout, date medic)
 - [ ] Lista de pacienti: tabel cu toti pacientii arondati
-- [ ] Invitatie pacient: buton de adaugat pacient nou (genereaza cod)
+- [x] Invitatie pacient: buton de adaugat pacient nou (genereaza cod)
 - [ ] Detalii pacient: istoric check-in-uri si poze
 - [ ] Sistem de alerte: notificari vizuale pentru valori critice (ex: febra)
 
 ### 4. Aplicatie Pacient (Mobile)
-- [ ] Setup initial Expo
-- [ ] Ecran login cu cod
+- [x] Setup initial Expo
+- [x] Ecran login cu cod
 - [ ] Formular Check-in: durere (1-10), temperatura, observatii
 - [ ] Upload poza: trimitere poza cu plaga direct la Supabase Storage
 - [ ] Istoric trimiteri: ce a trimis pacientul in ultimele zile

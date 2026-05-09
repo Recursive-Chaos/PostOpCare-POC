@@ -1,4 +1,4 @@
-import type { User } from "../../../../shared/types.js";
+import type { User } from "../../types/index.js";
 import db from "../index.js";
 
 export async function getUserById(id: string): Promise<User | null> {
