@@ -99,3 +99,42 @@ jobs:
       - name: Fail if server tests failed
         if: env.SERVER_FAILED == 'true'
         run: exit 1
+
+  test-mobile:
+    name: Teste mobile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Instaleaza mobile
+        run: |
+          cd mobile
+          npm install --legacy-peer-deps
+
+      - name: Ruleaza testele de mobile
+        run: |
+          cd mobile
+          npm test -- --no-color --reporter=default > ../mobile-results.txt 2>&1 || (echo "MOBILE_FAILED=true" >> $GITHUB_ENV)
+          cat ../mobile-results.txt
+
+      - name: Comentariu mobile
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "### 📱 Rezultate Teste Mobile" > mobile-comment.md
+          echo "\`\`\`" >> mobile-comment.md
+          cat mobile-results.txt >> mobile-comment.md
+          echo "\`\`\`" >> mobile-comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file mobile-comment.md
+
+      - name: Fail if mobile tests failed
+        if: env.MOBILE_FAILED == 'true'
+        run: exit 1
