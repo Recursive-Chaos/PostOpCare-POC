@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import AppLayout from "../components/AppLayout";
 import styles from "../page.module.css";
 import { t } from "@shared/translations";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+import { API_URL } from "../lib/api";
 
 export default function QuestionnairesPage() {
   const [templates, setTemplates] = useState<any[]>([]);
