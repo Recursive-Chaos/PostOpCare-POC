@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import AppLayout from "./components/AppLayout";
 import styles from "./page.module.css";
 import { t } from "@shared/translations";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+import { API_URL } from "./lib/api";
 
 export default function HomePage() {
+  const router = useRouter();
   const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,14 +17,9 @@ export default function HomePage() {
       try {
         const session = JSON.parse(localStorage.getItem("session") ?? "{}");
         const res = await fetch(`${API_URL}/doctor/patients`, {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
+          headers: { Authorization: `Bearer ${session.access_token}` },
         });
-        if (res.ok) {
-          const data = await res.json();
-          setPatients(data);
-        }
+        if (res.ok) setPatients(await res.json());
       } catch (err) {
         console.error("Failed to fetch patients:", err);
       } finally {
@@ -35,18 +31,32 @@ export default function HomePage() {
 
   return (
     <AppLayout>
-      <section className={styles.section}>
-        <div>
-          <h2>{t("patientsTitle")}</h2>
-          {loading ? (
-            <p>{t("loading")}</p>
-          ) : (
-            <pre style={{ background: "#f5f5f5", padding: "12px", borderRadius: "8px", overflow: "auto", fontSize: "12px" }}>
-              {JSON.stringify(patients, null, 2)}
-            </pre>
-          )}
-        </div>
-      </section>
+      <div className={styles.pageHeader}>
+        <h2 className={styles.pageTitle}>{t("patientsTitle")}</h2>
+        {!loading && <span className={styles.count}>{patients.length} pacienti</span>}
+      </div>
+
+      {loading ? (
+        <p className={styles.hint}>{t("loading")}</p>
+      ) : patients.length === 0 ? (
+        <p className={styles.hint}>Niciun pacient inregistrat.</p>
+      ) : (
+        <ul className={styles.list}>
+          {patients.map((p) => (
+            <li key={p.user_id} className={styles.card} onClick={() => router.push(`/patients/${p.user_id}`)}>
+              <div className={styles.cardAvatar}>{(p.first_name?.[0] ?? "?").toUpperCase()}</div>
+              <div className={styles.cardBody}>
+                <span className={styles.cardName}>{p.first_name} {p.last_name}</span>
+                <span className={styles.cardMeta}>
+                  {p.surgery_type ?? "—"} &middot;{" "}
+                  {p.surgery_date ? new Date(p.surgery_date).toLocaleDateString("ro-RO") : "data necunoscuta"}
+                </span>
+              </div>
+              <span className={styles.cardArrow}>›</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </AppLayout>
   );
 }
