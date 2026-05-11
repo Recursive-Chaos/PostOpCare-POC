@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { palette, styles } from '../../App.styles';
 import { HistoryEntry } from '../types';
 import { t } from '@shared/translations';
@@ -11,11 +11,16 @@ function painColor(severity: HistoryEntry['painSeverity']) {
 
 type Props = {
   entry: HistoryEntry;
+  onPress?: (entry: HistoryEntry) => void;
 };
 
-export function HistoryCard({ entry }: Props) {
+export function HistoryCard({ entry, onPress }: Props) {
   return (
-    <View style={styles.historyCard}>
+    <TouchableOpacity
+      activeOpacity={0.85}
+      style={styles.historyCard}
+      onPress={onPress ? () => onPress(entry) : undefined}
+    >
       <View style={styles.historyDateBox}>
         <Text style={styles.historyDay}>{entry.day}</Text>
         <Text style={styles.historyMonth}>{entry.month}</Text>
@@ -37,6 +42,6 @@ export function HistoryCard({ entry }: Props) {
         </View>
       </View>
       <Text style={styles.historyChevron}>›</Text>
-    </View>
+    </TouchableOpacity>
   );
 }
