@@ -3,12 +3,14 @@ import { View, Text, ScrollView } from 'react-native';
 import { styles } from '../../App.styles';
 import { mockHistory, dailyQuestionnaire } from '../utils/constants';
 import { t } from '@shared/translations';
+import { HistoryEntry } from '../types';
 // componente
 import { Header } from '../components/Header';
 import { RecoveryStatus } from '../components/RecoveryStatus';
 import { QuestionnaireCard } from '../components/QuestionnaireCard';
 import { SearchBar } from '../components/SearchBar';
 import { HistoryCard } from '../components/HistoryCard';
+import HistoryDetailScreen from './HistoryDetailScreen';
 
 type Props = {
   user: any;
@@ -17,6 +19,7 @@ type Props = {
 
 export default function DashboardScreen({ user, onLogout }: Props) {
   const [search, setSearch] = useState('');
+  const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -28,6 +31,15 @@ export default function DashboardScreen({ user, onLogout }: Props) {
         e.month.toLowerCase().includes(q),
     );
   }, [search]);
+
+  if (selectedEntry) {
+    return (
+      <HistoryDetailScreen
+        entry={selectedEntry}
+        onBack={() => setSelectedEntry(null)}
+      />
+    );
+  }
 
   return (
     <ScrollView
@@ -46,7 +58,7 @@ export default function DashboardScreen({ user, onLogout }: Props) {
       </View>
 
       {filtered.map((entry) => (
-        <HistoryCard key={entry.id} entry={entry} />
+        <HistoryCard key={entry.id} entry={entry} onPress={setSelectedEntry} />
       ))}
     </ScrollView>
   );

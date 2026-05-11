@@ -1,4 +1,8 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform, Dimensions } from 'react-native';
+
+// Dimensiunile ecranului se incarca o singura data cand se deschide poza
+// Daca se roteste telefonul nu se roteste poza
+const SCREEN = Dimensions.get('window');
 
 export const palette = {
   primary: '#1B6B3A',
@@ -330,5 +334,177 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: FONT,
     fontWeight: '500',
+  },
+
+  // Ecranul de istoric
+  
+  detailHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 20,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: palette.surfaceMuted,
+    borderRadius: 10,
+  },
+  backButtonIcon: {
+    fontFamily: FONT,
+    fontSize: 18,
+    color: palette.textPrimary,
+    fontWeight: '700',
+    marginRight: 6,
+  },
+  backButtonText: {
+    fontFamily: FONT,
+    fontSize: 14,
+    color: palette.textPrimary,
+    fontWeight: '600',
+  },
+  detailTitle: {
+    fontFamily: FONT,
+    fontSize: 22,
+    fontWeight: '700',
+    color: palette.textPrimary,
+    marginLeft: 14,
+    flex: 1,
+  },
+  detailDateCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: palette.surface,
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: palette.border,
+  },
+  detailDateInfo: {
+    flex: 1,
+  },
+  detailDateWeekday: {
+    fontFamily: FONT,
+    fontSize: 18,
+    fontWeight: '700',
+    color: palette.textPrimary,
+  },
+  detailSection: {
+    backgroundColor: palette.surface,
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: palette.border,
+  },
+  detailSectionTitle: {
+    fontFamily: FONT,
+    fontSize: 12,
+    fontWeight: '700',
+    color: palette.textSecondary,
+    letterSpacing: 1.2,
+    marginBottom: 12,
+  },
+  detailItem: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: palette.border,
+  },
+  detailItemLast: {
+    borderBottomWidth: 0,
+  },
+  detailItemLabel: {
+    fontFamily: FONT,
+    fontSize: 13,
+    color: palette.textSecondary,
+    marginBottom: 4,
+  },
+  detailItemValue: {
+    fontFamily: FONT,
+    fontSize: 16,
+    color: palette.textPrimary,
+    fontWeight: '600',
+  },
+  detailMetricRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: palette.border,
+  },
+  detailMetricLabel: {
+    fontFamily: FONT,
+    fontSize: 14,
+    color: palette.textSecondary,
+  },
+  detailMetricValue: {
+    fontFamily: FONT,
+    fontSize: 16,
+    fontWeight: '700',
+    color: palette.textPrimary,
+  },
+  detailNote: {
+    fontFamily: FONT,
+    fontSize: 14,
+    color: palette.textPrimary,
+    lineHeight: 20,
+  },
+
+  // Galerie de poze (grid + viewer fullscreen)
+  photoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  photoThumbnailWrapper: {
+    width: '48%',
+    aspectRatio: 1,
+    marginBottom: 8,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: palette.surfaceMuted,
+  },
+  photoThumbnail: {
+    width: '100%',
+    height: '100%',
+  },
+  photoModal: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
+  photoModalScroll: {
+    flex: 1,
+  },
+  photoModalContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  photoFullImage: {
+    width: SCREEN.width,
+    height: SCREEN.height,
+  },
+  photoCloseBtn: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    zIndex: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  photoCloseBtnText: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '600',
+    fontFamily: FONT,
+    lineHeight: 28,
   },
 });
