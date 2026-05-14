@@ -83,60 +83,63 @@ export default function InvitePage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          <div className={styles.formGroup}>
-            <label>{t("fieldEmail")}</label>
-            <input type="email" name="patient_email" value={form.patient_email} onChange={handleChange} placeholder={t("fieldEmailPlaceholder")} required />
-          </div>
+          <div className={styles.formGrid}>
+            <div className={`${styles.formGroup} ${styles.full}`}>
+              <label>{t("fieldEmail")}</label>
+              <input type="email" name="patient_email" value={form.patient_email} onChange={handleChange} placeholder={t("fieldEmailPlaceholder")} required />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label>{t("fieldFirstName")}</label>
-            <input type="text" name="first_name" value={form.first_name} onChange={handleChange} placeholder={t("fieldFirstNamePlaceholder")} required />
-          </div>
+            <div className={styles.formGroup}>
+              <label>{t("fieldFirstName")}</label>
+              <input type="text" name="first_name" value={form.first_name} onChange={handleChange} placeholder={t("fieldFirstNamePlaceholder")} required />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label>{t("fieldLastName")}</label>
-            <input type="text" name="last_name" value={form.last_name} onChange={handleChange} placeholder={t("fieldLastNamePlaceholder")} required />
-          </div>
+            <div className={styles.formGroup}>
+              <label>{t("fieldLastName")}</label>
+              <input type="text" name="last_name" value={form.last_name} onChange={handleChange} placeholder={t("fieldLastNamePlaceholder")} required />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label>{t("fieldPhone")}</label>
-            <input type="tel" name="patient_phone" value={form.patient_phone} onChange={handleChange} placeholder={t("fieldPhonePlaceholder")} required />
-          </div>
+            <div className={styles.formGroup}>
+              <label>{t("fieldPhone")}</label>
+              <input type="tel" name="patient_phone" value={form.patient_phone} onChange={handleChange} placeholder={t("fieldPhonePlaceholder")} required />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label>{t("fieldDob")}</label>
-            <input type="date" name="date_of_birth" value={form.date_of_birth} onChange={handleChange} />
-          </div>
+            <div className={styles.formGroup}>
+              <label>{t("fieldDob")}</label>
+              <input type="date" name="date_of_birth" value={form.date_of_birth} onChange={handleChange} />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label>{t("fieldNotes")}</label>
-            <input type="text" name="notes" value={form.notes} onChange={handleChange} placeholder={t("fieldNotesPlaceholder")} />
-          </div>
+            <div className={`${styles.formGroup} ${styles.full}`}>
+              <label>{t("fieldSurgeryType")}</label>
+              <input type="text" name="surgery_type" value={form.surgery_type} onChange={handleChange} placeholder={t("fieldSurgeryTypePlaceholder")} />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label>{t("fieldSurgeryType")}</label>
-            <input type="text" name="surgery_type" value={form.surgery_type} onChange={handleChange} placeholder={t("fieldSurgeryTypePlaceholder")} />
-          </div>
+            <div className={`${styles.formGroup} ${styles.full}`}>
+              <label>{t("fieldNotes")}</label>
+              <input type="text" name="notes" value={form.notes} onChange={handleChange} placeholder={t("fieldNotesPlaceholder")} />
+            </div>
 
-          <div className={styles.formRow}>
+            <hr className={styles.divider} />
+
             <div className={styles.formGroup}>
               <label>{t("fieldSurgeryDate")}</label>
               <input type="date" name="surgery_date" value={form.surgery_date} onChange={handleChange} />
             </div>
+
             <div className={styles.formGroup}>
               <label>{t("fieldDischargeDate")}</label>
               <input type="date" name="discharge_date" value={form.discharge_date} onChange={handleChange} />
             </div>
-          </div>
 
-          <div className={styles.formGroup}>
-            <label>{t("fieldMonitoringEnd")}</label>
-            <input type="date" name="monitoring_end_date" value={form.monitoring_end_date} onChange={handleChange} />
-          </div>
+            <div className={styles.formGroup}>
+              <label>{t("fieldMonitoringEnd")}</label>
+              <input type="date" name="monitoring_end_date" value={form.monitoring_end_date} onChange={handleChange} />
+            </div>
 
-          <button type="submit" className={styles.submitButton} disabled={loading}>
-            {loading ? t("inviteSubmitting") : t("inviteSubmitBtn")}
-          </button>
+            <button type="submit" className={styles.submitButton} disabled={loading}>
+              {loading ? t("inviteSubmitting") : t("inviteSubmitBtn")}
+            </button>
+          </div>
         </form>
       </div>
     </AppLayout>
