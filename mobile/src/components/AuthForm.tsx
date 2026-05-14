@@ -1,6 +1,12 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { palette, styles } from '../../App.styles';
+import React from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { palette, styles } from "../../App.styles";
 
 type Props = {
   title: string;
@@ -9,7 +15,7 @@ type Props = {
   value: string;
   onChangeText: (text: string) => void;
   placeholder: string;
-  keyboardType: 'email-address' | 'number-pad';
+  keyboardType: "email-address" | "number-pad";
   maxLength?: number;
   error?: string;
   loading: boolean;
@@ -56,7 +62,11 @@ export function AuthForm({
         />
       </View>
 
-      {error ? <Text style={styles.authError} testID="error-message">{error}</Text> : null}
+      {error ? (
+        <Text style={styles.authError} testID="error-message">
+          {error}
+        </Text>
+      ) : null}
 
       <TouchableOpacity
         testID="auth-button"

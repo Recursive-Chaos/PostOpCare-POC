@@ -39,7 +39,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     }>(
       `SELECT user_id, email, role, first_name, last_name, is_active
        FROM postopcare.users WHERE user_id = $1`,
-      [userId]
+      [userId],
     );
 
     const user = userResult.rows[0];
@@ -68,7 +68,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
          FROM postopcare.doctors d
          LEFT JOIN postopcare.hospitals h ON h.hospital_id = d.hospital_id
          WHERE d.user_id = $1`,
-        [userId]
+        [userId],
       );
 
       const doctor = doctorResult.rows[0];
@@ -91,7 +91,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
       }>(
         `SELECT doctor_id, date_of_birth
          FROM postopcare.patients WHERE user_id = $1`,
-        [userId]
+        [userId],
       );
 
       const patient = patientResult.rows[0];

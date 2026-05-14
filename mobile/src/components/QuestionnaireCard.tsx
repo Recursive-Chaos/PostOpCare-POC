@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import { styles } from '../../App.styles';
-import { t } from '@shared/translations';
+import { View, Text, TouchableOpacity } from "react-native";
+import { styles } from "../../App.styles";
+import { t } from "@shared/translations";
 
 type Props = {
   status: string;
@@ -9,15 +9,21 @@ type Props = {
 
 export function QuestionnaireCard({ status, onPress }: Props) {
   return (
-    <TouchableOpacity activeOpacity={0.9} style={styles.questionnaireCard} onPress={onPress}>
+    <TouchableOpacity
+      activeOpacity={0.9}
+      style={styles.questionnaireCard}
+      onPress={onPress}
+    >
       <View style={styles.questionnaireHeaderRow}>
-        <Text style={styles.questionnaireLabel}>{t('dailyQuestionnaireLabel')}</Text>
+        <Text style={styles.questionnaireLabel}>
+          {t("dailyQuestionnaireLabel")}
+        </Text>
         <View style={styles.questionnaireBadge}>
           <Text style={styles.questionnaireBadgeText}>{status}</Text>
         </View>
       </View>
       <View style={styles.questionnaireTitleRow}>
-        <Text style={styles.questionnaireTitle}>{t('fillQuestionnaire')}</Text>
+        <Text style={styles.questionnaireTitle}>{t("fillQuestionnaire")}</Text>
         <View style={styles.questionnaireChevron}>
           <Text style={styles.questionnaireChevronText}>›</Text>
         </View>

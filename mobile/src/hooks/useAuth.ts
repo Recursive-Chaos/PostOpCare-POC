@@ -1,55 +1,57 @@
-import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_URL } from '../utils/constants';
-import { t } from '@shared/translations';
+import { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL } from "../utils/constants";
+import { t } from "@shared/translations";
 
-export type AuthStep = 'email' | 'code';
+export type AuthStep = "email" | "code";
 
 export function useAuth() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [authStep, setAuthStep] = useState<AuthStep>('email');
-  const [email, setEmail] = useState('');
+  const [error, setError] = useState("");
+  const [authStep, setAuthStep] = useState<AuthStep>("email");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
-    AsyncStorage.getItem('user').then(data => {
-      if (data) setUser(JSON.parse(data));
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    AsyncStorage.getItem("user")
+      .then((data) => {
+        if (data) setUser(JSON.parse(data));
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   const requestCode = async (userEmail: string) => {
     if (!userEmail) {
-      setError(t('emptyEmailError'));
+      setError(t("emptyEmailError"));
       return false;
     }
-    setError('');
+    setError("");
     setActionLoading(true);
     try {
       const res = await fetch(`${API_URL}/auth/patient/request-code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: userEmail }),
       });
       if (!res.ok) {
         try {
           const errData = await res.json();
-          setError(errData.error || t('connError'));
+          setError(errData.error || t("connError"));
         } catch {
-          setError(t('connError'));
+          setError(t("connError"));
         }
         setActionLoading(false);
         return false;
       } else {
         setEmail(userEmail);
-        setAuthStep('code');
+        setAuthStep("code");
         setActionLoading(false);
         return true;
       }
     } catch (e) {
-      setError(t('connError'));
+      setError(t("connError"));
       setActionLoading(false);
       return false;
     }
@@ -57,23 +59,23 @@ export function useAuth() {
 
   const verifyCode = async (code: string) => {
     if (!code) {
-      setError(t('emptyCodeError'));
+      setError(t("emptyCodeError"));
       return false;
     }
-    setError('');
+    setError("");
     setActionLoading(true);
     try {
       const res = await fetch(`${API_URL}/auth/patient/verify-code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code }),
       });
       if (!res.ok) {
         try {
           const errData = await res.json();
-          setError(errData.error || t('invalidOrExpiredCode'));
+          setError(errData.error || t("invalidOrExpiredCode"));
         } catch {
-          setError(t('invalidOrExpiredCode'));
+          setError(t("invalidOrExpiredCode"));
         }
         setActionLoading(false);
         return false;
@@ -82,15 +84,15 @@ export function useAuth() {
         const fullUser = {
           ...data.user,
           recoveryDay: data.patient?.recoveryDay ?? 0,
-          surgeryType: data.patient?.surgeryType ?? 'Interventie chirurgicala'
+          surgeryType: data.patient?.surgeryType ?? "Interventie chirurgicala",
         };
         setUser(fullUser);
-        await AsyncStorage.setItem('user', JSON.stringify(fullUser));
+        await AsyncStorage.setItem("user", JSON.stringify(fullUser));
         setActionLoading(false);
         return true;
       }
     } catch (e) {
-      setError(t('connError'));
+      setError(t("connError"));
       setActionLoading(false);
       return false;
     }
@@ -98,14 +100,14 @@ export function useAuth() {
 
   const logout = async () => {
     setUser(null);
-    setAuthStep('email');
-    setEmail('');
-    await AsyncStorage.removeItem('user');
+    setAuthStep("email");
+    setEmail("");
+    await AsyncStorage.removeItem("user");
   };
 
   const resetStep = () => {
-    setAuthStep('email');
-    setError('');
+    setAuthStep("email");
+    setError("");
   };
 
   return {

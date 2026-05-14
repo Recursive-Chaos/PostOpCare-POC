@@ -70,7 +70,9 @@
   font-weight: 500;
   color: #555;
   text-decoration: none;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .navLink:hover {
@@ -105,15 +107,41 @@
 }
 
 @media (max-width: 768px) {
-  .header { padding: 0 20px; gap: 12px; }
-  .doctor { display: none; }
-  .main { padding: 24px 20px; }
+  .header {
+    padding: 0 20px;
+    gap: 12px;
+  }
+  .doctor {
+    display: none;
+  }
+  .main {
+    padding: 24px 20px;
+  }
 }
 
 @media (max-width: 480px) {
-  .header { padding: 10px 16px; height: auto; flex-wrap: wrap; gap: 8px; }
-  .headerLeft { gap: 12px; flex: 1; }
-  .nav { order: 3; width: 100%; margin-left: 0; justify-content: center; overflow-x: auto; }
-  .signOutBtn { border-left: none; margin-left: 0; }
-  .main { padding: 16px; }
+  .header {
+    padding: 10px 16px;
+    height: auto;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .headerLeft {
+    gap: 12px;
+    flex: 1;
+  }
+  .nav {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
+    overflow-x: auto;
+  }
+  .signOutBtn {
+    border-left: none;
+    margin-left: 0;
+  }
+  .main {
+    padding: 16px;
+  }
 }

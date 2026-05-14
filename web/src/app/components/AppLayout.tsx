@@ -15,7 +15,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const parsed = JSON.parse(localStorage.getItem("user") ?? "");
-      // daca e doctor cu sesiune valida 
+      // daca e doctor cu sesiune valida
       if (parsed.role === "doctor" && hasStoredSession()) {
         setUser(parsed);
         setLoading(false);
@@ -41,15 +41,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className={styles.headerLeft}>
           <div className={styles.logo}>PostOpCare</div>
           <div className={styles.doctor}>
-            <span className={styles.doctorName}>{user.firstName} {user.lastName}</span>
+            <span className={styles.doctorName}>
+              {user.firstName} {user.lastName}
+            </span>
             <span className={styles.doctorSpec}>{user.specialization}</span>
           </div>
         </div>
 
         <nav className={styles.nav}>
-          <Link href="/" className={styles.navLink}>{t("patientsTitle")}</Link>
-          <Link href="/questionnaires" className={styles.navLink}>{t("questionnairesTitle")}</Link>
-          <Link href="/invite" className={styles.navLink}>{t("inviteTitle")}</Link>
+          <Link href="/" className={styles.navLink}>
+            {t("patientsTitle")}
+          </Link>
+          <Link href="/questionnaires" className={styles.navLink}>
+            {t("questionnairesTitle")}
+          </Link>
+          <Link href="/invite" className={styles.navLink}>
+            {t("inviteTitle")}
+          </Link>
         </nav>
 
         <button className={styles.signOutBtn} onClick={signOut}>

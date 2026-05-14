@@ -1,7 +1,14 @@
-import { useState } from 'react';
-import { View, Image, TouchableOpacity, Modal, Text, ScrollView } from 'react-native';
-import { styles } from '../../App.styles';
-import { DetailSection } from './DetailSection';
+import { useState } from "react";
+import {
+  View,
+  Image,
+  TouchableOpacity,
+  Modal,
+  Text,
+  ScrollView,
+} from "react-native";
+import { styles } from "../../App.styles";
+import { DetailSection } from "./DetailSection";
 
 export type Photo = {
   id: number | string;
@@ -26,7 +33,10 @@ export function PhotoGallery({ photos }: Props) {
               style={styles.photoThumbnailWrapper}
               onPress={() => setViewing(photo)}
             >
-              <Image source={{ uri: photo.uri }} style={styles.photoThumbnail} />
+              <Image
+                source={{ uri: photo.uri }}
+                style={styles.photoThumbnail}
+              />
             </TouchableOpacity>
           ))}
         </View>

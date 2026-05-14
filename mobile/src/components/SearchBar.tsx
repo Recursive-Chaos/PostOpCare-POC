@@ -1,6 +1,6 @@
-import { View, TextInput } from 'react-native';
-import { palette, styles } from '../../App.styles';
-import { t } from '@shared/translations';
+import { View, TextInput } from "react-native";
+import { palette, styles } from "../../App.styles";
+import { t } from "@shared/translations";
 
 type Props = {
   search: string;
@@ -13,7 +13,7 @@ export function SearchBar({ search, onSearchChange }: Props) {
       style={[styles.authInput, { marginBottom: 22 }]}
       value={search}
       onChangeText={onSearchChange}
-      placeholder={t('searchPlaceholder')}
+      placeholder={t("searchPlaceholder")}
       placeholderTextColor={palette.textTertiary}
       testID="search-input"
     />

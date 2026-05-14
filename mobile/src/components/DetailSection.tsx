@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
-import { View, Text } from 'react-native';
-import { styles } from '../../App.styles';
+import { ReactNode } from "react";
+import { View, Text } from "react-native";
+import { styles } from "../../App.styles";
 
 type Props = {
   title: string;

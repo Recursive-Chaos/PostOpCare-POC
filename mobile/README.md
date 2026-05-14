@@ -1,7 +1,9 @@
 # PostOpCare Mobile
+
 Aplicatia mobila pentru pacienti. Facuta cu React Native si Expo, in TypeScript.
 
 ## Cum o pornesti
+
 1. Intra in folder: `cd mobile`
 2. Instaleaza ce trebuie: `npm install`
 3. Porneste: `npx expo start`
@@ -11,6 +13,7 @@ Aplicatia mobila pentru pacienti. Facuta cu React Native si Expo, in TypeScript.
 7. Sau scaneaza QR code-ul cu Expo Go pe telefon
 
 ## Comenzi rapide
+
 - `npm run web` -> ruleaza in browser (cel mai usor pt development)
 - `npm run android` -> ruleaza pe emulator Android
 - `npm run ios` -> ruleaza pe simulator iOS (doar pe Mac)

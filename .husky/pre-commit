@@ -1,1 +1,3 @@
+npm run prettier
+git add -u
 npx lint-staged

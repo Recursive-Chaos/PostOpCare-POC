@@ -65,7 +65,9 @@ const fmt = (iso?: string | null, time = false) => {
   if (!iso) return "—";
   const d = new Date(iso);
   const date = d.toLocaleDateString("ro-RO");
-  return time ? `${date} ${d.toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}` : date;
+  return time
+    ? `${date} ${d.toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}`
+    : date;
 };
 
 export default function PatientDetailPage() {
@@ -95,8 +97,14 @@ export default function PatientDetailPage() {
   return (
     <AppLayout>
       <div className={styles.topBar}>
-        <button className={styles.backBtn} onClick={() => router.push("/")}>← Inapoi</button>
-        {patient && <h2 className={styles.patientName}>{patient.first_name} {patient.last_name}</h2>}
+        <button className={styles.backBtn} onClick={() => router.push("/")}>
+          ← Inapoi
+        </button>
+        {patient && (
+          <h2 className={styles.patientName}>
+            {patient.first_name} {patient.last_name}
+          </h2>
+        )}
       </div>
 
       {loading ? (
@@ -112,10 +120,21 @@ export default function PatientDetailPage() {
               <Field label="Telefon" value={patient.phone} />
               <Field label="Data nasterii" value={fmt(patient.date_of_birth)} />
               <Field label="Tip interventie" value={patient.surgery_type} />
-              <Field label="Data interventiei" value={fmt(patient.surgery_date)} />
-              <Field label="Data externarii" value={fmt(patient.discharge_date)} />
-              <Field label="Sfarsit monitorizare" value={fmt(patient.monitoring_end_date)} />
-              {patient.notes && <Field label="Note" value={patient.notes} wide />}
+              <Field
+                label="Data interventiei"
+                value={fmt(patient.surgery_date)}
+              />
+              <Field
+                label="Data externarii"
+                value={fmt(patient.discharge_date)}
+              />
+              <Field
+                label="Sfarsit monitorizare"
+                value={fmt(patient.monitoring_end_date)}
+              />
+              {patient.notes && (
+                <Field label="Note" value={patient.notes} wide />
+              )}
             </div>
           </section>
 
@@ -129,31 +148,51 @@ export default function PatientDetailPage() {
                 const open = expanded === entry.id;
                 return (
                   <li key={entry.id} className={styles.historyItem}>
-                    <button className={styles.historyRow} onClick={() => setExpanded(open ? null : entry.id)}>
+                    <button
+                      className={styles.historyRow}
+                      onClick={() => setExpanded(open ? null : entry.id)}
+                    >
                       <div className={styles.historyLeft}>
-                        <span className={`${styles.statusDot} ${styles[entry.status]}`} />
+                        <span
+                          className={`${styles.statusDot} ${styles[entry.status]}`}
+                        />
                         <div>
-                          <span className={styles.historyTitle}>{entry.title}</span>
+                          <span className={styles.historyTitle}>
+                            {entry.title}
+                          </span>
                           <span className={styles.historyMeta}>
-                            {fmt(entry.submitted_at, true)} · {entry.frequency === "daily" ? "zilnic" : "saptamanal"}
+                            {fmt(entry.submitted_at, true)} ·{" "}
+                            {entry.frequency === "daily"
+                              ? "zilnic"
+                              : "saptamanal"}
                           </span>
                         </div>
                       </div>
                       <div className={styles.historyRight}>
-                        <span className={`${styles.statusPill} ${styles[entry.status]}`}>{STATUS_LABEL[entry.status]}</span>
-                        <span className={styles.chevron}>{open ? "▲" : "▼"}</span>
+                        <span
+                          className={`${styles.statusPill} ${styles[entry.status]}`}
+                        >
+                          {STATUS_LABEL[entry.status]}
+                        </span>
+                        <span className={styles.chevron}>
+                          {open ? "▲" : "▼"}
+                        </span>
                       </div>
                     </button>
 
                     {open && (
                       <div className={styles.answers}>
                         {entry.answers.length === 0 ? (
-                          <p className={styles.hint}>Chestionarul nu a fost completat.</p>
+                          <p className={styles.hint}>
+                            Chestionarul nu a fost completat.
+                          </p>
                         ) : (
                           entry.answers.map((a, i) => (
                             <div key={i} className={styles.answerRow}>
                               <span className={styles.answerQ}>{a.q}</span>
-                              <span className={styles.answerA}>{a.a || "—"}</span>
+                              <span className={styles.answerA}>
+                                {a.a || "—"}
+                              </span>
                             </div>
                           ))
                         )}
@@ -170,7 +209,15 @@ export default function PatientDetailPage() {
   );
 }
 
-function Field({ label, value, wide }: { label: string; value?: string | null; wide?: boolean }) {
+function Field({
+  label,
+  value,
+  wide,
+}: {
+  label: string;
+  value?: string | null;
+  wide?: boolean;
+}) {
   return (
     <div className={`${styles.field} ${wide ? styles.wide : ""}`}>
       <span className={styles.fieldLabel}>{label}</span>
