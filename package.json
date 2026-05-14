@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "prepare": "husky",
+    "prettier": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "test": "npm test --prefix web && npm test --prefix server && npm test --prefix mobile"
   },
   "lint-staged": {
@@ -34,6 +35,7 @@
   "homepage": "https://github.com/Recursive-Chaos/PostOpCare-POC#readme",
   "devDependencies": {
     "husky": "^9.1.7",
-    "lint-staged": "^16.4.0"
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.5.3"
   }
 }

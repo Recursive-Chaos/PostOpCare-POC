@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AppLayout from "../components/AppLayout";
 import styles from "./invitatie.module.css";
 import { t } from "@shared/translations";
@@ -17,14 +17,35 @@ const emptyForm = {
   surgery_date: "",
   discharge_date: "",
   monitoring_end_date: "",
+  template_id: "",
+};
+
+type Template = {
+  template_id: number;
+  title: string;
 };
 
 export default function InvitePage() {
   const [form, setForm] = useState(emptyForm);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  useEffect(() => {
+    async function loadTemplates() {
+      const res = await authFetch(`${API_URL}/doctor/questionnaires`);
+      if (res.ok) setTemplates(await res.json());
+    }
+
+    loadTemplates();
+  }, []);
+
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
@@ -50,6 +71,7 @@ export default function InvitePage() {
           surgeryDate: form.surgery_date,
           dischargeDate: form.discharge_date,
           monitoringEndDate: form.monitoring_end_date,
+          templateId: form.template_id ? Number(form.template_id) : undefined,
         }),
       });
 
@@ -60,7 +82,10 @@ export default function InvitePage() {
         return;
       }
 
-      setMessage({ type: "success", text: data.existed ? t("inviteExisted") : t("inviteSuccess") });
+      setMessage({
+        type: "success",
+        text: data.existed ? t("inviteExisted") : t("inviteSuccess"),
+      });
       setForm(emptyForm);
     } catch {
       setMessage({ type: "error", text: t("inviteConnError") });
@@ -75,7 +100,9 @@ export default function InvitePage() {
         <h1 className={styles.cardTitle}>{t("inviteTitle")}</h1>
 
         {message && (
-          <div className={`${styles.toast} ${message.type === "success" ? styles.toastSuccess : styles.toastError}`}>
+          <div
+            className={`${styles.toast} ${message.type === "success" ? styles.toastSuccess : styles.toastError}`}
+          >
             {message.text}
           </div>
         )}
@@ -84,57 +111,143 @@ export default function InvitePage() {
           <div className={styles.formGrid}>
             <div className={`${styles.formGroup} ${styles.full}`}>
               <label>{t("fieldEmail")}</label>
-              <input type="email" name="patient_email" value={form.patient_email} onChange={handleChange} placeholder={t("fieldEmailPlaceholder")} required />
+              <input
+                type="email"
+                name="patient_email"
+                value={form.patient_email}
+                onChange={handleChange}
+                placeholder={t("fieldEmailPlaceholder")}
+                required
+              />
             </div>
 
             <div className={styles.formGroup}>
               <label>{t("fieldFirstName")}</label>
-              <input type="text" name="first_name" value={form.first_name} onChange={handleChange} placeholder={t("fieldFirstNamePlaceholder")} required />
+              <input
+                type="text"
+                name="first_name"
+                value={form.first_name}
+                onChange={handleChange}
+                placeholder={t("fieldFirstNamePlaceholder")}
+                required
+              />
             </div>
 
             <div className={styles.formGroup}>
               <label>{t("fieldLastName")}</label>
-              <input type="text" name="last_name" value={form.last_name} onChange={handleChange} placeholder={t("fieldLastNamePlaceholder")} required />
+              <input
+                type="text"
+                name="last_name"
+                value={form.last_name}
+                onChange={handleChange}
+                placeholder={t("fieldLastNamePlaceholder")}
+                required
+              />
             </div>
 
             <div className={styles.formGroup}>
               <label>{t("fieldPhone")}</label>
-              <input type="tel" name="patient_phone" value={form.patient_phone} onChange={handleChange} placeholder={t("fieldPhonePlaceholder")} required />
+              <input
+                type="tel"
+                name="patient_phone"
+                value={form.patient_phone}
+                onChange={handleChange}
+                placeholder={t("fieldPhonePlaceholder")}
+                required
+              />
             </div>
 
             <div className={styles.formGroup}>
               <label>{t("fieldDob")}</label>
-              <input type="date" name="date_of_birth" value={form.date_of_birth} onChange={handleChange} />
+              <input
+                type="date"
+                name="date_of_birth"
+                value={form.date_of_birth}
+                onChange={handleChange}
+              />
             </div>
 
             <div className={`${styles.formGroup} ${styles.full}`}>
               <label>{t("fieldSurgeryType")}</label>
-              <input type="text" name="surgery_type" value={form.surgery_type} onChange={handleChange} placeholder={t("fieldSurgeryTypePlaceholder")} />
+              <input
+                type="text"
+                name="surgery_type"
+                value={form.surgery_type}
+                onChange={handleChange}
+                placeholder={t("fieldSurgeryTypePlaceholder")}
+              />
             </div>
 
             <div className={`${styles.formGroup} ${styles.full}`}>
               <label>{t("fieldNotes")}</label>
-              <input type="text" name="notes" value={form.notes} onChange={handleChange} placeholder={t("fieldNotesPlaceholder")} />
+              <input
+                type="text"
+                name="notes"
+                value={form.notes}
+                onChange={handleChange}
+                placeholder={t("fieldNotesPlaceholder")}
+              />
             </div>
 
             <hr className={styles.divider} />
 
             <div className={styles.formGroup}>
               <label>{t("fieldSurgeryDate")}</label>
-              <input type="date" name="surgery_date" value={form.surgery_date} onChange={handleChange} />
+              <input
+                type="date"
+                name="surgery_date"
+                value={form.surgery_date}
+                onChange={handleChange}
+              />
             </div>
 
             <div className={styles.formGroup}>
               <label>{t("fieldDischargeDate")}</label>
-              <input type="date" name="discharge_date" value={form.discharge_date} onChange={handleChange} />
+              <input
+                type="date"
+                name="discharge_date"
+                value={form.discharge_date}
+                onChange={handleChange}
+              />
             </div>
 
             <div className={styles.formGroup}>
               <label>{t("fieldMonitoringEnd")}</label>
-              <input type="date" name="monitoring_end_date" value={form.monitoring_end_date} onChange={handleChange} />
+              <input
+                type="date"
+                name="monitoring_end_date"
+                value={form.monitoring_end_date}
+                onChange={handleChange}
+              />
             </div>
 
-            <button type="submit" className={styles.submitButton} disabled={loading}>
+            <div className={`${styles.formGroup} ${styles.full}`}>
+              <label>{t("fieldQuestionnaire")}</label>
+              <select
+                name="template_id"
+                value={form.template_id}
+                onChange={handleChange}
+                required
+              >
+                <option value="" disabled>
+                  {t("fieldSelectQuestionnaire")}
+                </option>
+                {templates.map((template) => (
+                  <option
+                    key={template.template_id}
+                    value={template.template_id}
+                  >
+                    {template.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              className={styles.submitButton}
+              disabled={loading}
+            >
               {loading ? t("inviteSubmitting") : t("inviteSubmitBtn")}
             </button>
           </div>
