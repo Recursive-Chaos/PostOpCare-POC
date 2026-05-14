@@ -348,6 +348,100 @@
   flex-shrink: 0;
 }
 
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border: 1px solid #dbe4f0;
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-size: 0.875rem;
+  color: #1e293b;
+  background: #fff;
+}
+
+.textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.questionBox {
+  display: grid;
+  grid-template-columns: 1fr 140px minmax(220px, 0.8fr) auto;
+  gap: 8px;
+  align-items: start;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.inlineFields {
+  display: grid;
+  grid-template-columns: 80px 80px 1fr;
+  gap: 8px;
+}
+
+.primaryButton,
+.secondaryButton {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 9px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: #2563eb;
+  color: #fff;
+}
+
+.primaryButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  background: #fff;
+  color: #1e293b;
+  border-color: #dbe4f0;
+}
+
+.templateCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  padding: 14px;
+  background: #fff;
+}
+
+.templateCard strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.questionList {
+  margin: 0;
+  padding-left: 20px;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
+.error {
+  color: #dc2626 !important;
+}
+
 @media (max-width: 600px) {
   .section {
     flex-direction: column;
@@ -356,5 +450,9 @@
 
   .actions {
     flex-wrap: wrap;
+  }
+
+  .questionBox {
+    grid-template-columns: 1fr;
   }
 }
