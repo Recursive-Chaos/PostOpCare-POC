@@ -26,10 +26,11 @@ PostOpCare (POC) este un proiect pentru monitorizarea pacientilor dupa operatie.
 ### 3. Dashboard Medic (Web)
 - [x] Pagina de Login (minimalista, fara diacritice)
 - [x] Homepage simplu (Logout, date medic)
-- [ ] Lista de pacienti: tabel cu toti pacientii arondati
+- [x] Lista de pacienti: tabel cu toti pacientii arondati
 - [x] Invitatie pacient: buton de adaugat pacient nou (genereaza cod)
-- [ ] Detalii pacient: istoric check-in-uri si poze
+- [x] Detalii pacient: istoric check-in-uri si poze
 - [ ] Sistem de alerte: notificari vizuale pentru valori critice (ex: febra)
+- [x] Dashboard creare chestionar pentru evolutie pacienti
 
 ### 4. Aplicatie Pacient (Mobile)
 - [x] Setup initial Expo
