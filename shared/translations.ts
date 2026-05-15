@@ -1,6 +1,3 @@
-// toate textele din aplicatie sunt aici
-// t("loading") => "Se incarca..."
-
 const ro = {
   // auth
   loginTitle: "Autentificare",
@@ -46,11 +43,26 @@ const ro = {
   monitoringHistory: "ISTORIC MONITORIZARE",
   painLabel: "Durere",
   tempLabel: "Temperatura",
+
+  // check-in
+  checkinSubmitBtn: "Trimite check-in",
+  checkinRequiredError: "Completeaza campurile obligatorii.",
+  checkinCameraError: "Permite accesul la camera.",
+  checkinTextPlaceholder: "Scrie raspunsul",
+  checkinNumberPlaceholder: "Introdu valoarea",
+  checkinCameraBtn: "Camera",
+  checkinGalleryBtn: "Galerie",
+  checkinPhotoPreview: "Atinge poza pentru preview",
+  checkinSentTitle: "Check-in trimis azi",
+  checkinSentSubtitle: "Datele pentru ziua de azi au fost inregistrate.",
+  checkinSentAtLabel: "Trimis la",
+  checkinSentHint: "Urmatorul check-in va fi disponibil maine.",
+  checkinSentPreviewLabel: "Check-in de azi",
+  checkinSentNotesLabel: "Note",
 };
 
-// functia care returneaza valoarea unei chei
 export function t(key: keyof typeof ro): string {
   return ro[key] ?? key;
 }
 
-export default ro; // pe viitor returneaza valoarea selectata, momentan hardcoded asa.
+export default ro;
