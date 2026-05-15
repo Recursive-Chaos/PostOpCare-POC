@@ -1,14 +1,71 @@
 import { Platform } from "react-native";
-import { HistoryEntry } from "../types";
+import { HistoryEntry, Questionnaire } from "../types";
 
-// pe android merge pe 10.0.2.2:3001 care de fapt e localhost-ul din pc
 export const API_URL =
   Platform.OS === "android" ? "http://10.0.2.2:3001" : "http://localhost:3001";
-export const dailyQuestionnaire = {
-  status: "Necompletat" as "Necompletat" | "Completat",
+export const dailyQuestionnaire: Questionnaire = {
+  assignmentId: 1,
+  procedureId: 1,
+  title: "Check-in post-operator",
+  status: "Necompletat",
+  questions: [
+    {
+      id: "pain",
+      questionId: 1,
+      text: "Durere",
+      answerType: "scale",
+      optionsJson: { min: 1, max: 10, unit: "scor" },
+      required: true,
+      dbTarget: "measurement",
+      metricName: "pain",
+    },
+    {
+      id: "temperature",
+      questionId: 2,
+      text: "Temperatura",
+      answerType: "scale",
+      optionsJson: { min: 35, max: 42, step: 0.1, unit: "C" },
+      required: true,
+      dbTarget: "measurement",
+      metricName: "temperature",
+    },
+    {
+      id: "fever",
+      questionId: 3,
+      text: "Ai avut febra?",
+      answerType: "boolean",
+      required: true,
+      dbTarget: "response",
+    },
+    {
+      id: "wound",
+      questionId: 4,
+      text: "Aspect plaga",
+      answerType: "choice",
+      optionsJson: ["Normal", "Rosu", "Umflat", "Secretii"],
+      required: true,
+      dbTarget: "response",
+    },
+    {
+      id: "photo",
+      questionId: 5,
+      text: "Poza plaga",
+      answerType: "photo",
+      required: true,
+      dbTarget: "photo",
+      photoType: "wound",
+    },
+    {
+      id: "notes",
+      questionId: 6,
+      text: "Note pentru medic",
+      answerType: "text",
+      dbTarget: "notes",
+    },
+  ],
 };
 
-export const mockHistory: HistoryEntry[] = [
+export const historyEntries: HistoryEntry[] = [
   {
     id: "1",
     day: "3",
