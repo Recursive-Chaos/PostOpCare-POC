@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import AppLayout from "../components/AppLayout";
 import styles from "../page.module.css";
 import { t } from "@shared/translations";
-import { API_URL } from "../lib/api";
+import { API_URL, authFetch } from "../lib/api";
 
 type Question = {
   question_text: string;
@@ -77,12 +77,7 @@ export default function QuestionnairesPage() {
   async function loadTemplates() {
     setLoading(true);
     try {
-      const session = JSON.parse(localStorage.getItem("session") ?? "{}");
-      const res = await fetch(`${API_URL}/doctor/questionnaires`, {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
+      const res = await authFetch(`${API_URL}/doctor/questionnaires`);
 
       if (res.ok) {
         setTemplates(await res.json());
@@ -116,12 +111,10 @@ export default function QuestionnairesPage() {
     }));
 
     try {
-      const session = JSON.parse(localStorage.getItem("session") ?? "{}");
-      const res = await fetch(`${API_URL}/doctor/questionnaires`, {
+      const res = await authFetch(`${API_URL}/doctor/questionnaires`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           title,

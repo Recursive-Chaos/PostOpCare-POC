@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import AppLayout from "./components/AppLayout";
 import styles from "./page.module.css";
 import { t } from "@shared/translations";
-import { API_URL } from "./lib/api";
+import { API_URL, authFetch } from "./lib/api";
 
 export default function HomePage() {
   const router = useRouter();
@@ -15,10 +15,7 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchPatients() {
       try {
-        const session = JSON.parse(localStorage.getItem("session") ?? "{}");
-        const res = await fetch(`${API_URL}/doctor/patients`, {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
+        const res = await authFetch(`${API_URL}/doctor/patients`);
         if (res.ok) setPatients(await res.json());
       } catch (err) {
         console.error("Failed to fetch patients:", err);
