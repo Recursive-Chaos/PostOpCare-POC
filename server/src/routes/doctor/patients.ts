@@ -23,6 +23,7 @@ router.post(
         surgeryDate,
         dischargeDate,
         monitoringEndDate,
+        templateId,
       } = req.body as {
         email?: string;
         firstName?: string;
@@ -34,6 +35,7 @@ router.post(
         surgeryDate?: string;
         dischargeDate?: string;
         monitoringEndDate?: string;
+        templateId?: number;
       };
 
       const normalizedEmail = email?.trim().toLowerCase();
@@ -117,11 +119,27 @@ router.post(
       const doctorResult = await db.query<{ user_id: string }>(
         `SELECT user_id FROM postopcare.users
          WHERE user_id = $1 AND role = 'doctor' AND is_active = true`,
-        [doctorId]
+        [doctorId],
       );
 
       if (doctorResult.rows.length === 0) {
         res.status(403).json({ error: "doctor not found" });
+        return;
+      }
+
+      if (!templateId) {
+        res.status(400).json({ error: "questionnaire is required" });
+        return;
+      }
+
+      const templateResult = await db.query(
+        `SELECT template_id FROM postopcare.questionnaire_templates
+           WHERE template_id = $1 AND doctor_id = $2`,
+        [templateId, doctorId],
+      );
+
+      if (templateResult.rows.length === 0) {
+        res.status(400).json({ error: "invalid questionnaire" });
         return;
       }
 
@@ -131,7 +149,7 @@ router.post(
       }>(
         `SELECT user_id, role
          FROM postopcare.users WHERE email = $1`,
-        [normalizedEmail]
+        [normalizedEmail],
       );
 
       const user = existingUser.rows[0];
@@ -149,7 +167,9 @@ router.post(
         // In Supabase v2, admin.listUsers() is the way to find users by email (or just try create and catch)
         // Since we want to link existing ones, we try to find first.
         const { data: userList } = await supabaseAdmin.auth.admin.listUsers();
-        const existing = userList?.users.find(u => u.email === normalizedEmail);
+        const existing = userList?.users.find(
+          (u) => u.email === normalizedEmail,
+        );
 
         if (existing) {
           supabaseUserId = existing.id;
@@ -162,8 +182,11 @@ router.post(
           if (error) {
             // Daca s-a creat intre timp de catre altcineva
             if (error.message.includes("already registered")) {
-               const { data: retryList } = await supabaseAdmin.auth.admin.listUsers();
-               supabaseUserId = retryList?.users.find(u => u.email === normalizedEmail)?.id;
+              const { data: retryList } =
+                await supabaseAdmin.auth.admin.listUsers();
+              supabaseUserId = retryList?.users.find(
+                (u) => u.email === normalizedEmail,
+              )?.id;
             } else {
               console.error("supabase createUser failed:", error.message);
               res.status(502).json({ error: error.message });
@@ -175,7 +198,9 @@ router.post(
         }
 
         if (!supabaseUserId) {
-          res.status(502).json({ error: "could not identify or create patient" });
+          res
+            .status(502)
+            .json({ error: "could not identify or create patient" });
           return;
         }
 
@@ -185,7 +210,14 @@ router.post(
           `INSERT INTO postopcare.users
            (user_id, email, password_hash, role, first_name, last_name, phone, is_active)
            VALUES ($1, $2, $3, 'patient', $4, $5, $6, true)`,
-          [patientId, normalizedEmail, "managed_by_supabase", patientFirstName, patientLastName, phone]
+          [
+            patientId,
+            normalizedEmail,
+            "managed_by_supabase",
+            patientFirstName,
+            patientLastName,
+            phone,
+          ],
         );
       }
 
@@ -196,7 +228,7 @@ router.post(
          DO UPDATE SET doctor_id = EXCLUDED.doctor_id,
                        date_of_birth = EXCLUDED.date_of_birth,
                        notes = EXCLUDED.notes`,
-        [patientId, doctorId, valueOrNull(dateOfBirth), valueOrNull(notes)]
+        [patientId, doctorId, valueOrNull(dateOfBirth), valueOrNull(notes)],
       );
 
       await db.query(
@@ -209,37 +241,45 @@ router.post(
           valueOrNull(surgeryDate),
           valueOrNull(dischargeDate),
           valueOrNull(monitoringEndDate),
-        ]
+        ],
       );
 
-      res.status(user ? 200 : 201).json({ success: true, patientId, existed: !!user });
+      await db.query(
+        `INSERT INTO postopcare.questionnaire_assignments
+           (patient_id, template_id, frequency, start_date, end_date)
+           VALUES ($1, $2, 'daily', CURRENT_DATE, $3)`,
+        [patientId, templateId, valueOrNull(monitoringEndDate)],
+      );
+
+      res
+        .status(user ? 200 : 201)
+        .json({ success: true, patientId, existed: !!user });
     } catch (err) {
       next(err);
     }
-  }
+  },
 );
 
 // GET /doctor/patients/
-router.get(
-  "/",
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const token = req.headers.authorization?.replace("Bearer ", "");
-      if (!token) {
-        res.status(401).json({ error: "doctor login is required" });
-        return;
-      }
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!token) {
+      res.status(401).json({ error: "doctor login is required" });
+      return;
+    }
 
-      const { data: authData, error: authError } = await supabase.auth.getUser(token);
-      if (authError || !authData.user) {
-        res.status(401).json({ error: "doctor login is required" });
-        return;
-      }
+    const { data: authData, error: authError } =
+      await supabase.auth.getUser(token);
+    if (authError || !authData.user) {
+      res.status(401).json({ error: "doctor login is required" });
+      return;
+    }
 
-      const doctorId = authData.user.id;
+    const doctorId = authData.user.id;
 
-      const result = await db.query(
-        `SELECT 
+    const result = await db.query(
+      `SELECT 
           u.user_id, u.email, u.first_name, u.last_name, u.phone,
           p.date_of_birth, p.notes,
           proc.surgery_type, proc.surgery_date, proc.discharge_date, proc.monitoring_end_date
@@ -248,14 +288,13 @@ router.get(
          LEFT JOIN postopcare.procedures proc ON u.user_id = proc.patient_id
          WHERE p.doctor_id = $1
          ORDER BY proc.surgery_date DESC NULLS LAST`,
-        [doctorId]
-      );
+      [doctorId],
+    );
 
-      res.json(result.rows);
-    } catch (err) {
-      next(err);
-    }
+    res.json(result.rows);
+  } catch (err) {
+    next(err);
   }
-);
+});
 
 export default router;

@@ -36,7 +36,8 @@ const ro = {
   inviteTitle: "Invita pacient",
   inviteSubmitBtn: "Invita",
   inviteSubmitting: "Se trimite...",
-  inviteSuccess: "Pacientul a fost creat. Poate intra in aplicatia mobila cu acest email.",
+  inviteSuccess:
+    "Pacientul a fost creat. Poate intra in aplicatia mobila cu acest email.",
   inviteExisted: "Pacientul exista deja in sistem. Datele au fost actualizate.",
   inviteError: "Eroare la trimiterea invitatiei.",
   inviteConnError: "Eroare de conexiune cu serverul.",
@@ -56,6 +57,8 @@ const ro = {
   fieldSurgeryDate: "Data operatiei",
   fieldDischargeDate: "Data externarii",
   fieldMonitoringEnd: "Data final monitorizare",
+  fieldQuestionnaire: "Chestionar",
+  fieldSelectQuestionnaire: "Alege chestionar",
 };
 
 export function t(key: keyof typeof ro): string {

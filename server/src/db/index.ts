@@ -26,6 +26,5 @@ export default db;
 // await db.query("DELETE FROM utilizatori WHERE id = $1", [id]);
 // foloseste $1 $2 etc in loc sa pui valorile direct in query
 
-
 // sau puteti crea functii speciale gen
 // const addUser(user){...} care folosesc db.query

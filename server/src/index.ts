@@ -31,7 +31,6 @@ app.use("/auth", authRouter);
 app.use("/doctor/patients", doctorPatientsRouter);
 app.use("/doctor/questionnaires", doctorQuestionnairesRouter);
 
-
 app.use(errorHandler);
 
 app.listen(config.port, () => {

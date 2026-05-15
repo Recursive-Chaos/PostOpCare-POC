@@ -94,8 +94,8 @@ export default function QuestionnairesPage() {
   function updateQuestion(index: number, value: Partial<Question>) {
     setQuestions((oldQuestions) =>
       oldQuestions.map((question, i) =>
-        i === index ? { ...question, ...value } : question
-      )
+        i === index ? { ...question, ...value } : question,
+      ),
     );
   }
 
@@ -231,7 +231,7 @@ export default function QuestionnairesPage() {
                   type="button"
                   onClick={() =>
                     setQuestions((oldQuestions) =>
-                      oldQuestions.filter((_, i) => i !== index)
+                      oldQuestions.filter((_, i) => i !== index),
                     )
                   }
                 >
@@ -248,12 +248,19 @@ export default function QuestionnairesPage() {
               className={styles.secondaryButton}
               type="button"
               onClick={() =>
-                setQuestions((oldQuestions) => [...oldQuestions, emptyQuestion()])
+                setQuestions((oldQuestions) => [
+                  ...oldQuestions,
+                  emptyQuestion(),
+                ])
               }
             >
               Adauga intrebare
             </button>
-            <button className={styles.primaryButton} disabled={saving} type="submit">
+            <button
+              className={styles.primaryButton}
+              disabled={saving}
+              type="submit"
+            >
               {saving ? "Se salveaza" : "Salveaza chestionar"}
             </button>
           </div>

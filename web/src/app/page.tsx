@@ -30,7 +30,9 @@ export default function HomePage() {
     <AppLayout>
       <div className={styles.pageHeader}>
         <h2 className={styles.pageTitle}>{t("patientsTitle")}</h2>
-        {!loading && <span className={styles.count}>{patients.length} pacienti</span>}
+        {!loading && (
+          <span className={styles.count}>{patients.length} pacienti</span>
+        )}
       </div>
 
       {loading ? (
@@ -40,13 +42,23 @@ export default function HomePage() {
       ) : (
         <ul className={styles.list}>
           {patients.map((p) => (
-            <li key={p.user_id} className={styles.card} onClick={() => router.push(`/patients/${p.user_id}`)}>
-              <div className={styles.cardAvatar}>{(p.first_name?.[0] ?? "?").toUpperCase()}</div>
+            <li
+              key={p.user_id}
+              className={styles.card}
+              onClick={() => router.push(`/patients/${p.user_id}`)}
+            >
+              <div className={styles.cardAvatar}>
+                {(p.first_name?.[0] ?? "?").toUpperCase()}
+              </div>
               <div className={styles.cardBody}>
-                <span className={styles.cardName}>{p.first_name} {p.last_name}</span>
+                <span className={styles.cardName}>
+                  {p.first_name} {p.last_name}
+                </span>
                 <span className={styles.cardMeta}>
                   {p.surgery_type ?? "—"} &middot;{" "}
-                  {p.surgery_date ? new Date(p.surgery_date).toLocaleDateString("ro-RO") : "data necunoscuta"}
+                  {p.surgery_date
+                    ? new Date(p.surgery_date).toLocaleDateString("ro-RO")
+                    : "data necunoscuta"}
                 </span>
               </div>
               <span className={styles.cardArrow}>›</span>

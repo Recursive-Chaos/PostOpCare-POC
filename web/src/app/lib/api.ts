@@ -1,8 +1,7 @@
 // asta decide care e URL-ul API-ului
 // public API e pe northflank
 export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ??
-  "http://localhost:3001";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 type StoredSession = {
   access_token?: string;
@@ -27,7 +26,6 @@ export function logout() {
     window.location.href = "/login";
   }
 }
-
 
 // wrapper pentru fetch care adauga automat token-ul in header
 export async function authFetch(input: string, init: RequestInit = {}) {

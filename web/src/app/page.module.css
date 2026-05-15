@@ -50,7 +50,9 @@
   border-radius: 8px;
   padding: 14px 18px;
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 
 .card:hover {
@@ -119,7 +121,9 @@
   font-weight: 500;
   cursor: pointer;
   color: #64748b;
-  transition: background 0.12s, border-color 0.12s;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
 }
 
 .backBtn:hover {

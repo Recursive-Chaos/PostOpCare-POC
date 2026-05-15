@@ -26,7 +26,7 @@ router.post(
       const result = await db.query<{ user_id: string }>(
         `SELECT user_id FROM postopcare.users
          WHERE email = $1 AND role = 'doctor' AND is_active = true`,
-        [normalizedEmail]
+        [normalizedEmail],
       );
 
       if (result.rows.length === 0) {
@@ -53,7 +53,7 @@ router.post(
     } catch (err) {
       next(err);
     }
-  }
+  },
 );
 
 // endpoint pentru verificarea codului
@@ -94,7 +94,7 @@ router.post(
       }>(
         `SELECT user_id, email, role, first_name, last_name, is_active
          FROM postopcare.users WHERE user_id = $1`,
-        [userId]
+        [userId],
       );
 
       const user = userResult.rows[0];
@@ -114,7 +114,7 @@ router.post(
          FROM postopcare.doctors d
          LEFT JOIN postopcare.hospitals h ON h.hospital_id = d.hospital_id
          WHERE d.user_id = $1`,
-        [userId]
+        [userId],
       );
 
       const doctor = doctorResult.rows[0];
@@ -137,7 +137,7 @@ router.post(
     } catch (err) {
       next(err);
     }
-  }
+  },
 );
 
 export default router;

@@ -39,7 +39,8 @@
   margin-bottom: 5px;
 }
 
-.formGroup input {
+.formGroup input,
+.formGroup select {
   width: 100%;
   padding: 9px 12px;
   background: #f8fafc;
@@ -47,11 +48,14 @@
   border-radius: 6px;
   font-size: 0.875rem;
   color: #1e293b;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
   box-sizing: border-box;
 }
 
-.formGroup input:focus {
+.formGroup input:focus,
+.formGroup select:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
@@ -91,8 +95,13 @@
   margin-top: 8px;
 }
 
-.submitButton:hover { background: #1d4ed8; }
-.submitButton:disabled { background: #93c5fd; cursor: not-allowed; }
+.submitButton:hover {
+  background: #1d4ed8;
+}
+.submitButton:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
 
 .toast {
   grid-column: 1 / -1;
@@ -103,11 +112,29 @@
   margin-bottom: 18px;
 }
 
-.toastSuccess { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
-.toastError { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.toastSuccess {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+.toastError {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
 
 @media (max-width: 600px) {
-  .card { padding: 20px 16px; }
-  .formGrid, .formRow { grid-template-columns: 1fr; }
-  .formGroup.full, .formRow, .toast, .submitButton { grid-column: unset; }
+  .card {
+    padding: 20px 16px;
+  }
+  .formGrid,
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+  .formGroup.full,
+  .formRow,
+  .toast,
+  .submitButton {
+    grid-column: unset;
+  }
 }

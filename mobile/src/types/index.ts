@@ -1,4 +1,3 @@
-
 export type Patient = {
   firstName: string;
   recoveryDay: number;
@@ -11,6 +10,6 @@ export type HistoryEntry = {
   month: string;
   weekday: string;
   pain: number;
-  painSeverity: 'low' | 'moderate' | 'high';
+  painSeverity: "low" | "moderate" | "high";
   temperatureC: number;
 };

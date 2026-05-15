@@ -14,7 +14,9 @@
   font-weight: 500;
   cursor: pointer;
   color: #64748b;
-  transition: background 0.12s, border-color 0.12s;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
   flex-shrink: 0;
 }
 

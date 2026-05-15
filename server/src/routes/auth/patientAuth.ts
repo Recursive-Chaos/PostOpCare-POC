@@ -28,7 +28,7 @@ router.post(
       const userResult = await db.query<{ user_id: string }>(
         `SELECT user_id FROM postopcare.users
          WHERE email = $1 AND role = 'patient' AND is_active = true`,
-        [normalizedEmail]
+        [normalizedEmail],
       );
 
       if (userResult.rows.length === 0) {
@@ -44,18 +44,22 @@ router.post(
       });
 
       if (error) {
-        console.error(`OTP send failed for ${normalizedEmail}: ${error.message}`);
-        const status = error.message.toLowerCase().includes("rate limit") ? 429 : 502;
+        console.error(
+          `OTP send failed for ${normalizedEmail}: ${error.message}`,
+        );
+        const status = error.message.toLowerCase().includes("rate limit")
+          ? 429
+          : 502;
         res.status(status).json({ error: error.message });
         return;
       }
 
-      // ascundem rezultatul operatiunii pt ca 
+      // ascundem rezultatul operatiunii pt ca
       res.json(GENERIC_RESPONSE);
     } catch (err) {
       next(err);
     }
-  }
+  },
 );
 
 // endpoint pentru verificarea codului
@@ -79,7 +83,10 @@ router.post(
       });
 
       if (error || !data.session || !data.user) {
-        console.error(`Verify OTP Error for ${normalizedEmail}:`, error?.message || 'No session/user');
+        console.error(
+          `Verify OTP Error for ${normalizedEmail}:`,
+          error?.message || "No session/user",
+        );
         res.status(401).json({ error: "invalid or expired code" });
         return;
       }
@@ -97,7 +104,7 @@ router.post(
       }>(
         `SELECT user_id, email, role, first_name, last_name, is_active
          FROM postopcare.users WHERE user_id = $1`,
-        [userId]
+        [userId],
       );
 
       const user = userResult.rows[0];
@@ -115,7 +122,7 @@ router.post(
       }>(
         `SELECT doctor_id, date_of_birth
          FROM postopcare.patients WHERE user_id = $1`,
-        [userId]
+        [userId],
       );
 
       const patient = patientResult.rows[0];
@@ -126,7 +133,7 @@ router.post(
         surgery_date: string;
       }>(
         `SELECT surgery_type, surgery_date FROM postopcare.procedures WHERE patient_id = $1 ORDER BY surgery_date DESC LIMIT 1`,
-        [userId]
+        [userId],
       );
       const procedure = procedureResult.rows[0];
 
@@ -158,7 +165,7 @@ router.post(
     } catch (err) {
       next(err);
     }
-  }
+  },
 );
 
 export default router;

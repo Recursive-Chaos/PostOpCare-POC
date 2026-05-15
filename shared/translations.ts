@@ -1,13 +1,12 @@
 // toate textele din aplicatie sunt aici
 // t("loading") => "Se incarca..."
 
-
 const ro = {
-
   // auth
   loginTitle: "Autentificare",
   loginSubtitle: "Introdu adresa de email pentru a primi un cod.",
-  patientLoginSubtitle: "Te rugam sa introduci adresa ta de email pentru a continua.",
+  patientLoginSubtitle:
+    "Te rugam sa introduci adresa ta de email pentru a continua.",
   emailLabel: "Email",
   emailPlaceholder: "exemplu@email.com",
   sendCodeBtn: "Trimite cod",
@@ -36,14 +35,14 @@ const ro = {
   homeTitle: "Acasa",
   signOutBtn: "Deconectare",
   greeting: "Salut,",
-  
+
   // mobile dashboard
   greetingPatient: "Buna ziua,",
   dayWord: "Ziua",
   recoverySuffix: "de recuperare",
   dailyQuestionnaireLabel: "CHESTIONAR ZILNIC",
   fillQuestionnaire: "Completeaza chestionar",
-  searchPlaceholder: "Cauta dupa data — ex. \"4 mai\" sau \"luni\"",
+  searchPlaceholder: 'Cauta dupa data — ex. "4 mai" sau "luni"',
   monitoringHistory: "ISTORIC MONITORIZARE",
   painLabel: "Durere",
   tempLabel: "Temperatura",

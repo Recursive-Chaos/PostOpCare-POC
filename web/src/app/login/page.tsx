@@ -61,10 +61,13 @@ export default function LoginPage() {
           setLoading(false);
           return;
         }
-        
+
         const data = await res.json();
         localStorage.setItem("session", JSON.stringify(data.session));
-        localStorage.setItem("user", JSON.stringify({ ...data.user, ...data.doctor }));
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ ...data.user, ...data.doctor }),
+        );
         router.push("/");
       } catch {
         setError(t("connError"));
@@ -77,18 +80,30 @@ export default function LoginPage() {
     <div className={styles.wrapper}>
       <div className={styles.card}>
         <div className={styles.logo}>PostOpCare</div>
-        <h1 className={styles.title}>{step === "email" ? t("loginTitle") : t("enterCodeTitle")}</h1>
-        <p className={styles.subtitle}>{step === "email" ? t("loginSubtitle") : `${t("enterCodeSubtitle")} ${email}`}</p>
+        <h1 className={styles.title}>
+          {step === "email" ? t("loginTitle") : t("enterCodeTitle")}
+        </h1>
+        <p className={styles.subtitle}>
+          {step === "email"
+            ? t("loginSubtitle")
+            : `${t("enterCodeSubtitle")} ${email}`}
+        </p>
 
         <div className={styles.form} onKeyDown={handleSubmit}>
           <div className={styles.field}>
-            <label className={styles.label} htmlFor="auth-input">{step === "email" ? t("emailLabel") : t("codeLabel")}</label>
+            <label className={styles.label} htmlFor="auth-input">
+              {step === "email" ? t("emailLabel") : t("codeLabel")}
+            </label>
             <input
               id="auth-input"
               className={styles.input}
               type={step === "email" ? "email" : "text"}
               value={step === "email" ? email : code}
-              onChange={(e) => step === "email" ? setEmail(e.target.value) : setCode(e.target.value)}
+              onChange={(e) =>
+                step === "email"
+                  ? setEmail(e.target.value)
+                  : setCode(e.target.value)
+              }
               maxLength={step === "code" ? 8 : undefined}
               autoFocus
             />
@@ -96,12 +111,26 @@ export default function LoginPage() {
 
           {error && <p className={styles.error}>{error}</p>}
 
-          <button className={styles.button} onClick={handleSubmit} disabled={loading}>
-            {loading ? (step === "email" ? t("sendingBtn") : t("verifyingBtn")) : (step === "email" ? t("sendCodeBtn") : t("verifyBtn"))}
+          <button
+            className={styles.button}
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading
+              ? step === "email"
+                ? t("sendingBtn")
+                : t("verifyingBtn")
+              : step === "email"
+                ? t("sendCodeBtn")
+                : t("verifyBtn")}
           </button>
 
           {step === "code" && (
-            <button type="button" className={styles.back} onClick={() => setStep("email")}>
+            <button
+              type="button"
+              className={styles.back}
+              onClick={() => setStep("email")}
+            >
               {t("goBack")}
             </button>
           )}
