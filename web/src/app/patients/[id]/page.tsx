@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import AppLayout from "../../components/AppLayout";
 import styles from "../../page.module.css";
-import { API_URL } from "../../lib/api";
+import { API_URL, authFetch } from "../../lib/api";
 
 const MOCK_HISTORY = [
   {
@@ -78,10 +78,7 @@ export default function PatientDetailPage() {
   useEffect(() => {
     async function load() {
       try {
-        const session = JSON.parse(localStorage.getItem("session") ?? "{}");
-        const res = await fetch(`${API_URL}/doctor/patients`, {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
+        const res = await authFetch(`${API_URL}/doctor/patients`);
         if (res.ok) {
           const list: any[] = await res.json();
           setPatient(list.find((p) => p.user_id === id) ?? null);

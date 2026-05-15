@@ -4,7 +4,7 @@ import { useState } from "react";
 import AppLayout from "../components/AppLayout";
 import styles from "./invitatie.module.css";
 import { t } from "@shared/translations";
-import { API_URL } from "../lib/api";
+import { API_URL, authFetch } from "../lib/api";
 
 const emptyForm = {
   patient_email: "",
@@ -34,12 +34,10 @@ export default function InvitePage() {
     setMessage(null);
 
     try {
-      const session = JSON.parse(localStorage.getItem("session") ?? "{}");
-      const res = await fetch(`${API_URL}/doctor/patients/invite`, {
+      const res = await authFetch(`${API_URL}/doctor/patients/invite`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           email: form.patient_email,

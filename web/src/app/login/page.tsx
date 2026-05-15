@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { t } from "@shared/translations";
 import { useRouter } from "next/navigation";
-import { API_URL } from "../lib/api";
+import { API_URL, hasStoredSession } from "../lib/api";
 
 type Step = "email" | "code" | "success";
 
@@ -17,7 +17,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (localStorage.getItem("user")) {
+    if (localStorage.getItem("user") && hasStoredSession()) {
       router.push("/");
     }
   }, [router]);

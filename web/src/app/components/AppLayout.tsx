@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "./AppLayout.module.css";
 import { t } from "@shared/translations";
+import { hasStoredSession, logout } from "../lib/api";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -14,16 +15,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const parsed = JSON.parse(localStorage.getItem("user") ?? "");
-      if (parsed.role === "doctor") {
+      // daca e doctor cu sesiune valida 
+      if (parsed.role === "doctor" && hasStoredSession()) {
         setUser(parsed);
         setLoading(false);
       } else {
-        throw new Error();
+        throw new Error(); // nu e doctor cu sesiune valida
       }
     } catch {
-      localStorage.removeItem("user");
-      localStorage.removeItem("session");
-      router.push("/login");
+      logout();
     }
   }, [router]);
 
