@@ -132,7 +132,8 @@ router.post(
         return;
       }
 
-      const templateResult = await db.query(
+      const templateResult = awa
+      it db.query(
         `SELECT template_id FROM postopcare.questionnaire_templates
            WHERE template_id = $1 AND doctor_id = $2`,
         [templateId, doctorId],
