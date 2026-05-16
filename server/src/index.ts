@@ -13,7 +13,7 @@ const app = express();
 app.set("trust proxy", 1);
 app.use(helmet());
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" })); // limita de upload
 
 // health
 app.get("/health", (_req, res) => {

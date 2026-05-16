@@ -23,7 +23,11 @@ export function QuestionnaireCard({ status, onPress }: Props) {
         </View>
       </View>
       <View style={styles.questionnaireTitleRow}>
-        <Text style={styles.questionnaireTitle}>{t("fillQuestionnaire")}</Text>
+        <Text style={styles.questionnaireTitle}>
+          {status === "Completat"
+            ? t("viewSubmittedQuestionnaire")
+            : t("fillQuestionnaire")}
+        </Text>
         <View style={styles.questionnaireChevron}>
           <Text style={styles.questionnaireChevronText}>›</Text>
         </View>

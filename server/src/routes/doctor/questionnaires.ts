@@ -1,11 +1,182 @@
 import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
+import type { PoolClient } from "pg";
 import { supabase } from "../../lib/supabase.js";
 import db from "../../db/index.js";
+import {
+  getDoctorQuestionnaireTemplates,
+  insertQuestionnaireTemplate,
+  updateQuestionnaireTemplate,
+  deleteQuestionnaireTemplate,
+  deleteUnreferencedTemplateQuestionsExcept,
+  dropQuestionPhotoConstraint,
+  addQuestionPhotoConstraint,
+  insertQuestion,
+  updateQuestion,
+} from "../../db/queries.js";
 
 const router = Router();
 
 const questionTypes = ["text", "scale", "boolean", "choice", "photo"];
+
+type QuestionnaireQuestionInput = {
+  question_id?: number;
+  question_text?: string;
+  answer_type?: string;
+  options_json?: unknown;
+};
+
+type QuestionnaireBody = {
+  title?: string;
+  description?: string;
+  questions?: QuestionnaireQuestionInput[];
+};
+
+function optionalNumber(value: unknown) {
+  return value === undefined || value === null || value === ""
+    ? null
+    : Number(value);
+}
+
+function normalizeScaleOptions(optionsJson: unknown) {
+  if (
+    !optionsJson ||
+    typeof optionsJson !== "object" ||
+    Array.isArray(optionsJson)
+  ) {
+    return null;
+  }
+
+  const raw = optionsJson as {
+    min?: unknown;
+    max?: unknown;
+    unit?: unknown;
+    normal_min?: unknown;
+    normal_max?: unknown;
+    thresholds?: unknown;
+  };
+
+  const min = Number(raw.min);
+  const max = Number(raw.max);
+  const normalMin = optionalNumber(raw.normal_min);
+  const normalMax = optionalNumber(raw.normal_max);
+
+  if (!validRange(min, max) || !validOptionalRange(normalMin, normalMax)) {
+    return null;
+  }
+
+  return {
+    min,
+    max,
+    unit: typeof raw.unit === "string" ? raw.unit.trim() : "",
+    normal_min: normalMin,
+    normal_max: normalMax,
+  };
+}
+
+function validRange(min: number, max: number) {
+  return Number.isFinite(min) && Number.isFinite(max) && min <= max;
+}
+
+function validOptionalRange(min: number | null, max: number | null) {
+  const minOk = min === null || Number.isFinite(min);
+  const maxOk = max === null || Number.isFinite(max);
+  return minOk && maxOk && (min === null || max === null || min <= max);
+}
+
+function readQuestionnaireBody(body: QuestionnaireBody, res: Response) {
+  const title = body.title?.trim();
+  const description = body.description?.trim() || null;
+  const questions = body.questions ?? [];
+
+  if (!title) {
+    res.status(400).json({ error: "title is required" });
+    return null;
+  }
+
+  if (questions.length === 0) {
+    res.status(400).json({ error: "questions are required" });
+    return null;
+  }
+
+  return { title, description, questions };
+}
+
+async function saveQuestions(
+  client: PoolClient,
+  templateId: number,
+  questions: QuestionnaireQuestionInput[],
+  res: Response,
+) {
+  const savedQuestionIds: number[] = [];
+
+  for (let i = 0; i < questions.length; i += 1) {
+    const question = questions[i];
+    const text = question.question_text?.trim();
+    const type = question.answer_type || "text";
+
+    if (!text || !questionTypes.includes(type)) {
+      await client.query("ROLLBACK");
+      res.status(400).json({ error: "invalid question" });
+      return false;
+    }
+
+    let options: unknown = null;
+
+    if (type === "choice") {
+      options = Array.isArray(question.options_json)
+        ? question.options_json
+            .map((option) => String(option).trim())
+            .filter(Boolean)
+        : [];
+    }
+
+    if (type === "scale") {
+      options = normalizeScaleOptions(question.options_json);
+
+      if (!options) {
+        await client.query("ROLLBACK");
+        res.status(400).json({ error: "invalid scale options" });
+        return false;
+      }
+    }
+
+    if (type === "photo") {
+      await dropQuestionPhotoConstraint(client);
+      await addQuestionPhotoConstraint(client);
+    }
+
+    if (Number.isInteger(question.question_id)) {
+      const updateResult = await updateQuestion(
+        client,
+        Number(question.question_id),
+        templateId,
+        text,
+        type,
+        options,
+        i,
+      );
+
+      if (updateResult.rows.length > 0) {
+        savedQuestionIds.push(updateResult.rows[0].question_id);
+        continue;
+      }
+    }
+
+    const insertResult = await insertQuestion(
+      client,
+      templateId,
+      text,
+      type,
+      options,
+      i,
+    );
+    const insertedQuestionId = insertResult.rows?.[0]?.question_id;
+    if (insertedQuestionId) savedQuestionIds.push(insertedQuestionId);
+  }
+
+  return savedQuestionIds;
+}
 
 async function getDoctorId(req: Request, res: Response) {
   const token = req.headers.authorization?.replace("Bearer ", "");
@@ -29,32 +200,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     const doctorId = await getDoctorId(req, res);
     if (!doctorId) return;
 
-    const result = await db.query(
-      `SELECT
-          qt.template_id,
-          qt.title,
-          qt.description,
-          qt.created_at,
-          COALESCE(
-            json_agg(
-              json_build_object(
-                'question_id', q.question_id,
-                'question_text', q.question_text,
-                'answer_type', q.answer_type,
-                'options_json', q.options_json,
-                'order_index', q.order_index
-              )
-              ORDER BY q.order_index
-            ) FILTER (WHERE q.question_id IS NOT NULL),
-            '[]'
-          ) AS questions
-         FROM postopcare.questionnaire_templates qt
-         LEFT JOIN postopcare.questions q ON q.template_id = qt.template_id
-         WHERE qt.doctor_id = $1
-         GROUP BY qt.template_id
-         ORDER BY qt.created_at DESC`,
-      [doctorId],
-    );
+    const result = await getDoctorQuestionnaireTemplates(db, doctorId);
 
     res.json(result.rows);
   } catch (err) {
@@ -69,85 +215,27 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const doctorId = await getDoctorId(req, res);
     if (!doctorId) return;
 
-    const body = req.body as {
-      title?: string;
-      description?: string;
-      questions?: {
-        question_text?: string;
-        answer_type?: string;
-        options_json?: unknown;
-      }[];
-    };
-
-    const title = body.title?.trim();
-    const description = body.description?.trim() || null;
-    const questions = body.questions ?? [];
-
-    if (!title) {
-      res.status(400).json({ error: "title is required" });
-      return;
-    }
-
-    if (questions.length === 0) {
-      res.status(400).json({ error: "questions are required" });
-      return;
-    }
+    const body = readQuestionnaireBody(req.body as QuestionnaireBody, res);
+    if (!body) return;
 
     await client.query("BEGIN");
 
-    const templateResult = await client.query<{ template_id: number }>(
-      `INSERT INTO postopcare.questionnaire_templates (doctor_id, title, description)
-         VALUES ($1, $2, $3)
-         RETURNING template_id`,
-      [doctorId, title, description],
+    const templateResult = await insertQuestionnaireTemplate(
+      client,
+      doctorId,
+      body.title,
+      body.description,
     );
 
     const templateId = templateResult.rows[0].template_id;
 
-    for (let i = 0; i < questions.length; i += 1) {
-      const question = questions[i];
-      const text = question.question_text?.trim();
-      const type = question.answer_type || "text";
-
-      if (!text || !questionTypes.includes(type)) {
-        await client.query("ROLLBACK");
-        res.status(400).json({ error: "invalid question" });
-        return;
-      }
-
-      let options: unknown = null;
-
-      if (type === "choice") {
-        options = Array.isArray(question.options_json)
-          ? question.options_json
-              .map((option) => String(option).trim())
-              .filter(Boolean)
-          : [];
-      }
-
-      if (type === "scale" && typeof question.options_json === "object") {
-        options = question.options_json;
-      }
-
-      if (type === "photo") {
-        await client.query(
-          `ALTER TABLE postopcare.questions
-             DROP CONSTRAINT IF EXISTS questions_answer_type_check`,
-        );
-        await client.query(
-          `ALTER TABLE postopcare.questions
-             ADD CONSTRAINT questions_answer_type_check
-             CHECK (answer_type IN ('scale', 'boolean', 'text', 'choice', 'photo'))`,
-        );
-      }
-
-      await client.query(
-        `INSERT INTO postopcare.questions
-           (template_id, question_text, answer_type, options_json, order_index)
-           VALUES ($1, $2, $3, $4, $5)`,
-        [templateId, text, type, options ? JSON.stringify(options) : null, i],
-      );
-    }
+    const savedQuestionIds = await saveQuestions(
+      client,
+      templateId,
+      body.questions,
+      res,
+    );
+    if (!savedQuestionIds) return;
 
     await client.query("COMMIT");
 
@@ -159,5 +247,84 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     client.release();
   }
 });
+
+router.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
+  const client = await db.connect();
+
+  try {
+    const doctorId = await getDoctorId(req, res);
+    if (!doctorId) return;
+
+    const templateId = Number(req.params.id);
+    const body = readQuestionnaireBody(req.body as QuestionnaireBody, res);
+    if (!body) return;
+
+    if (!Number.isInteger(templateId)) {
+      res.status(400).json({ error: "invalid questionnaire" });
+      return;
+    }
+
+    await client.query("BEGIN");
+
+    const templateResult = await updateQuestionnaireTemplate(
+      client,
+      templateId,
+      doctorId,
+      body.title,
+      body.description,
+    );
+
+    if (templateResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      res.status(404).json({ error: "questionnaire not found" });
+      return;
+    }
+
+    const savedQuestionIds = await saveQuestions(
+      client,
+      templateId,
+      body.questions,
+      res,
+    );
+    if (!savedQuestionIds) return;
+    await deleteUnreferencedTemplateQuestionsExcept(
+      client,
+      templateId,
+      savedQuestionIds,
+    );
+
+    await client.query("COMMIT");
+
+    res.json({ success: true, template_id: templateId });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    next(err);
+  } finally {
+    client.release();
+  }
+});
+
+router.delete(
+  "/:id",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const doctorId = await getDoctorId(req, res);
+      if (!doctorId) return;
+
+      const templateId = Number(req.params.id);
+
+      if (!Number.isInteger(templateId)) {
+        res.status(400).json({ error: "invalid questionnaire" });
+        return;
+      }
+
+      await deleteQuestionnaireTemplate(db, templateId, doctorId);
+
+      res.status(204).send();
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 export default router;

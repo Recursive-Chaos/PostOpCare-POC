@@ -186,6 +186,13 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     color: palette.textTertiary,
   },
+  hint: {
+    fontFamily: FONT,
+    fontSize: 14,
+    color: palette.textTertiary,
+    textAlign: "center",
+    marginTop: 20,
+  },
 
   historyCard: {
     flexDirection: "row",

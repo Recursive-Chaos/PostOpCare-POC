@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL } from "../utils/constants";
 import { t } from "@shared/translations";
+import { normalizeQuestionnaire } from "../utils/checkin";
 
 export type AuthStep = "email" | "code";
 
@@ -16,7 +17,14 @@ export function useAuth() {
   useEffect(() => {
     AsyncStorage.getItem("user")
       .then((data) => {
-        if (data) setUser(JSON.parse(data));
+        if (!data) return;
+
+        const savedUser = JSON.parse(data);
+        if (savedUser.token) {
+          setUser(savedUser);
+        } else {
+          AsyncStorage.removeItem("user");
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -83,8 +91,10 @@ export function useAuth() {
         const data = await res.json();
         const fullUser = {
           ...data.user,
+          token: data.session?.access_token,
           recoveryDay: data.patient?.recoveryDay ?? 0,
           surgeryType: data.patient?.surgeryType ?? "Interventie chirurgicala",
+          questionnaire: normalizeQuestionnaire(data.questionnaire),
         };
         setUser(fullUser);
         await AsyncStorage.setItem("user", JSON.stringify(fullUser));

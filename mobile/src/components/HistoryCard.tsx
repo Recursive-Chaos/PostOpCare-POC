@@ -31,19 +31,8 @@ export function HistoryCard({ entry, onPress }: Props) {
         </View>
         <View style={styles.historyMetricsRow}>
           <View style={styles.historyMetric}>
-            <View
-              style={[
-                styles.historyMetricDot,
-                { backgroundColor: painColor(entry.painSeverity) },
-              ]}
-            />
             <Text style={styles.historyMetricText}>
-              {t("painLabel")} {entry.pain}/10
-            </Text>
-          </View>
-          <View style={styles.historyMetric}>
-            <Text style={styles.historyMetricText}>
-              {t("tempLabel")} {entry.temperatureC.toFixed(1)}°
+              {entry.responses?.length ?? 0} raspunsuri
             </Text>
           </View>
         </View>

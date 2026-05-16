@@ -24,13 +24,49 @@ const ro = {
   emptyCodeError: "Te rog sa introduci codul.",
 
   // nav / general
+  appName: "PostOpCare",
   signOutBtn: "Deconectare",
+  emptyValue: "—",
+  unknownDate: "data necunoscuta",
+  back: "Inapoi",
 
   // home
   patientsTitle: "Pacienti",
+  patientsCount: "pacienti",
+  noPatients: "Niciun pacient inregistrat.",
 
   // questionnaires
   questionnairesTitle: "Chestionare",
+  questionnaireTitlePlaceholder: "Titlu chestionar",
+  questionnaireDescriptionPlaceholder: "Descriere",
+  editingQuestionnaireNotice: "Editezi un chestionar existent",
+  cancelEdit: "Renunta",
+  questionPlaceholderPrefix: "Intrebarea",
+  questionTypeText: "Text",
+  questionTypeScale: "Scala",
+  questionTypeBoolean: "Da/Nu",
+  questionTypeChoice: "Alegere",
+  questionTypePhoto: "Poza",
+  choicePlaceholder: "ex: putin, mediu, mult",
+  scaleMinPlaceholder: "Min",
+  scaleMaxPlaceholder: "Max",
+  unitOptionalPlaceholder: "Unitate optionala",
+  normalIntervalLabel: "Interval normal",
+  normalIntervalHelp:
+    "Optional. Daca setezi o limita normala, raspunsurile sub minim sau peste maxim apar cu alerta in istoric.",
+  normalMinOptionalPlaceholder: "Normal min optional",
+  normalMaxOptionalPlaceholder: "Normal max optional",
+  deleteBtn: "Sterge",
+  addQuestionBtn: "Adauga intrebare",
+  saveQuestionnaireBtn: "Salveaza chestionar",
+  saveChangesBtn: "Salveaza modificarile",
+  savingQuestionnaireBtn: "Se salveaza",
+  myQuestionnairesTitle: "Chestionarele mele",
+  noQuestionnaires: "Nu exista chestionare.",
+  editBtn: "Editeaza",
+  questionnaireSaveError: "Nu s-a putut salva chestionarul",
+  questionnaireDeleteError: "Nu s-a putut sterge chestionarul",
+  normalLabel: "normal",
 
   // invite
   inviteTitle: "Invita pacient",
@@ -59,6 +95,30 @@ const ro = {
   fieldMonitoringEnd: "Data final monitorizare",
   fieldQuestionnaire: "Chestionar",
   fieldSelectQuestionnaire: "Alege chestionar",
+
+  // patient detail
+  patientNotFound: "Pacientul nu a fost gasit.",
+  medicalDataTitle: "Date medicale",
+  emailField: "Email",
+  phoneField: "Telefon",
+  dateOfBirthField: "Data nasterii",
+  surgeryTypeField: "Tip interventie",
+  surgeryDateField: "Data interventiei",
+  dischargeDateField: "Data externarii",
+  monitoringEndField: "Sfarsit monitorizare",
+  notesField: "Note",
+  questionnaireHistoryTitle: "Istoric chestionare",
+  loadingHistory: "Se incarca istoricul...",
+  noCompletedQuestionnaires: "Niciun chestionar completat inca.",
+  checkinTitle: "Check-in post-operator",
+  dailyFrequency: "Zilnic",
+  weeklyFrequency: "Saptamanal",
+  alertLabel: "Alerta",
+  questionnaireNotCompleted: "Chestionarul nu a fost completat.",
+  extraNotes: "Note suplimentare",
+  outsideNormalIntervalAlert: "In afara intervalului normal",
+  attachedPhotos: "Fotografii atasate",
+  checkinPhotoAlt: "Fotografie check-in",
 };
 
 export function t(key: keyof typeof ro): string {

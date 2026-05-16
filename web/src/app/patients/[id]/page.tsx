@@ -1,68 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import AppLayout from "../../components/AppLayout";
 import styles from "../../page.module.css";
 import { API_URL, authFetch } from "../../lib/api";
+import { t } from "@shared/translations";
 
-const MOCK_HISTORY = [
-  {
-    id: 1,
-    title: "Check-in post-operator zilnic",
-    frequency: "daily",
-    status: "completed",
-    submitted_at: "2026-05-09T08:14:00Z",
-    answers: [
-      { q: "Cum evaluezi durerea pe o scara 1-10?", a: "3" },
-      { q: "Ai observat secretii la locul inciziei?", a: "Nu" },
-      { q: "Ai febra?", a: "Nu" },
-      { q: "Note suplimentare", a: "Ma simt mai bine decat ieri." },
-    ],
-  },
-  {
-    id: 2,
-    title: "Check-in post-operator zilnic",
-    frequency: "daily",
-    status: "completed",
-    submitted_at: "2026-05-08T09:02:00Z",
-    answers: [
-      { q: "Cum evaluezi durerea pe o scara 1-10?", a: "5" },
-      { q: "Ai observat secretii la locul inciziei?", a: "Da - usoare" },
-      { q: "Ai febra?", a: "Nu" },
-      { q: "Note suplimentare", a: "" },
-    ],
-  },
-  {
-    id: 3,
-    title: "Evaluare saptamanala recuperare",
-    frequency: "weekly",
-    status: "completed",
-    submitted_at: "2026-05-06T17:30:00Z",
-    answers: [
-      { q: "Poti merge fara ajutor?", a: "Da" },
-      { q: "Ai urmat schema de medicamente?", a: "Da" },
-      { q: "Cum evaluezi starea generala (1-10)?", a: "7" },
-    ],
-  },
-  {
-    id: 4,
-    title: "Check-in post-operator zilnic",
-    frequency: "daily",
-    status: "missed",
-    submitted_at: "2026-05-07T00:00:00Z",
-    answers: [],
-  },
-];
-
-const STATUS_LABEL: Record<string, string> = {
-  completed: "Trimis",
-  missed: "Ratat",
-  pending: "In asteptare",
+type CheckinResponse = {
+  question: string;
+  answer: string;
+  answer_type?: string;
+  options_json?: any;
 };
 
 const fmt = (iso?: string | null, time = false) => {
-  if (!iso) return "—";
+  if (!iso) return t("emptyValue");
   const d = new Date(iso);
   const date = d.toLocaleDateString("ro-RO");
   return time
@@ -70,11 +24,61 @@ const fmt = (iso?: string | null, time = false) => {
     : date;
 };
 
+function isOutsideNormalInterval(response: CheckinResponse) {
+  if (response.answer_type !== "scale") return null;
+
+  const value = Number(String(response.answer).replace(",", "."));
+  const options = response.options_json ?? {};
+  const legacyThreshold = Array.isArray(options.thresholds)
+    ? options.thresholds[0]
+    : null;
+  const min = options.normal_min ?? legacyThreshold?.min ?? null;
+  const max = options.normal_max ?? legacyThreshold?.max ?? null;
+
+  if (!Number.isFinite(value) || (min === null && max === null)) return null;
+
+  const belowMin = min !== null && value < Number(min);
+  const aboveMax = max !== null && value > Number(max);
+
+  return belowMin || aboveMax;
+}
+
+function formatCheckin(checkin: any) {
+  const answers = (checkin.responses ?? []).map(
+    (response: CheckinResponse) => ({
+      q: response.question,
+      a: response.answer,
+      hasAlert: isOutsideNormalInterval(response),
+    }),
+  );
+
+  if (checkin.general_notes) {
+    answers.push({
+      q: t("extraNotes"),
+      a: checkin.general_notes,
+      hasAlert: null,
+    });
+  }
+
+  return {
+    id: checkin.checkin_id,
+    title: t("checkinTitle"),
+    frequency: "daily",
+    status: "completed",
+    submitted_at: checkin.submitted_at,
+    hasAlert: answers.some((answer: any) => answer.hasAlert),
+    answers,
+    photos: checkin.photos ?? [],
+  };
+}
+
 export default function PatientDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [patient, setPatient] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [history, setHistory] = useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const [expanded, setExpanded] = useState<number | null>(null);
 
   useEffect(() => {
@@ -85,10 +89,18 @@ export default function PatientDetailPage() {
           const list: any[] = await res.json();
           setPatient(list.find((p) => p.user_id === id) ?? null);
         }
+
+        const historyRes = await authFetch(
+          `${API_URL}/doctor/patients/${id}/checkins`,
+        );
+        if (historyRes.ok) {
+          setHistory((await historyRes.json()).map(formatCheckin));
+        }
       } catch (err) {
-        console.error("Failed to fetch patient:", err);
+        console.error("Failed to fetch data:", err);
       } finally {
         setLoading(false);
+        setHistoryLoading(false);
       }
     }
     load();
@@ -98,7 +110,7 @@ export default function PatientDetailPage() {
     <AppLayout>
       <div className={styles.topBar}>
         <button className={styles.backBtn} onClick={() => router.push("/")}>
-          ← Inapoi
+          ? {t("back")}
         </button>
         {patient && (
           <h2 className={styles.patientName}>
@@ -108,100 +120,155 @@ export default function PatientDetailPage() {
       </div>
 
       {loading ? (
-        <p className={styles.hint}>Se incarca...</p>
+        <p className={styles.hint}>{t("loading")}</p>
       ) : !patient ? (
-        <p className={styles.hint}>Pacientul nu a fost gasit.</p>
+        <p className={styles.hint}>{t("patientNotFound")}</p>
       ) : (
         <>
           <section className={styles.section}>
-            <h3 className={styles.sectionTitle}>Date medicale</h3>
+            <h3 className={styles.sectionTitle}>{t("medicalDataTitle")}</h3>
             <div className={styles.infoGrid}>
-              <Field label="Email" value={patient.email} />
-              <Field label="Telefon" value={patient.phone} />
-              <Field label="Data nasterii" value={fmt(patient.date_of_birth)} />
-              <Field label="Tip interventie" value={patient.surgery_type} />
+              <Field label={t("emailField")} value={patient.email} />
+              <Field label={t("phoneField")} value={patient.phone} />
               <Field
-                label="Data interventiei"
+                label={t("dateOfBirthField")}
+                value={fmt(patient.date_of_birth)}
+              />
+              <Field
+                label={t("surgeryTypeField")}
+                value={patient.surgery_type}
+              />
+              <Field
+                label={t("surgeryDateField")}
                 value={fmt(patient.surgery_date)}
               />
               <Field
-                label="Data externarii"
+                label={t("dischargeDateField")}
                 value={fmt(patient.discharge_date)}
               />
               <Field
-                label="Sfarsit monitorizare"
+                label={t("monitoringEndField")}
                 value={fmt(patient.monitoring_end_date)}
               />
               {patient.notes && (
-                <Field label="Note" value={patient.notes} wide />
+                <Field label={t("notesField")} value={patient.notes} wide />
               )}
             </div>
           </section>
 
           <section className={styles.section}>
             <h3 className={styles.sectionTitle}>
-              Istoric chestionare
-              <span className={styles.mockedBadge}>date demo</span>
+              {t("questionnaireHistoryTitle")}
             </h3>
-            <ul className={styles.historyList}>
-              {MOCK_HISTORY.map((entry) => {
-                const open = expanded === entry.id;
-                return (
-                  <li key={entry.id} className={styles.historyItem}>
-                    <button
-                      className={styles.historyRow}
-                      onClick={() => setExpanded(open ? null : entry.id)}
-                    >
-                      <div className={styles.historyLeft}>
-                        <span
-                          className={`${styles.statusDot} ${styles[entry.status]}`}
-                        />
-                        <div>
-                          <span className={styles.historyTitle}>
-                            {entry.title}
-                          </span>
-                          <span className={styles.historyMeta}>
-                            {fmt(entry.submitted_at, true)} ·{" "}
-                            {entry.frequency === "daily"
-                              ? "zilnic"
-                              : "saptamanal"}
+            {historyLoading ? (
+              <p className={styles.hint}>{t("loadingHistory")}</p>
+            ) : history.length === 0 ? (
+              <p className={styles.hint}>{t("noCompletedQuestionnaires")}</p>
+            ) : (
+              <ul className={styles.historyList}>
+                {history.map((entry) => {
+                  const open = expanded === entry.id;
+                  return (
+                    <li key={entry.id} className={styles.historyItem}>
+                      <button
+                        className={styles.historyRow}
+                        onClick={() => setExpanded(open ? null : entry.id)}
+                      >
+                        <div className={styles.historyLeft}>
+                          <span
+                            className={`${styles.statusDot} ${styles[entry.status]}`}
+                          />
+                          <div>
+                            <span className={styles.historyTitle}>
+                              {entry.title}
+                            </span>
+                            <span className={styles.historyMeta}>
+                              {fmt(entry.submitted_at, true)} ·{" "}
+                              {entry.frequency === "daily"
+                                ? t("dailyFrequency")
+                                : t("weeklyFrequency")}
+                            </span>
+                          </div>
+                        </div>
+                        <div className={styles.historyRight}>
+                          {entry.hasAlert && (
+                            <span className={styles.alertPill}>
+                              {t("alertLabel")}
+                            </span>
+                          )}
+                          <span className={styles.chevron}>
+                            {open ? "▲" : "▼"}
                           </span>
                         </div>
-                      </div>
-                      <div className={styles.historyRight}>
-                        <span
-                          className={`${styles.statusPill} ${styles[entry.status]}`}
-                        >
-                          {STATUS_LABEL[entry.status]}
-                        </span>
-                        <span className={styles.chevron}>
-                          {open ? "▲" : "▼"}
-                        </span>
-                      </div>
-                    </button>
+                      </button>
 
-                    {open && (
-                      <div className={styles.answers}>
-                        {entry.answers.length === 0 ? (
-                          <p className={styles.hint}>
-                            Chestionarul nu a fost completat.
-                          </p>
-                        ) : (
-                          entry.answers.map((a, i) => (
-                            <div key={i} className={styles.answerRow}>
-                              <span className={styles.answerQ}>{a.q}</span>
-                              <span className={styles.answerA}>
-                                {a.a || "—"}
+                      {open && (
+                        <div className={styles.answers}>
+                          {entry.answers.length === 0 ? (
+                            <p className={styles.hint}>
+                              {t("questionnaireNotCompleted")}
+                            </p>
+                          ) : (
+                            entry.answers.map((a: any, i: number) => (
+                              <div key={i} className={styles.answerRow}>
+                                <span className={styles.answerQ}>{a.q}</span>
+                                <span className={styles.answerA}>
+                                  {a.a || t("emptyValue")}
+                                </span>
+                                {a.hasAlert && (
+                                  <span className={styles.alertBadge}>
+                                    {t("outsideNormalIntervalAlert")}
+                                  </span>
+                                )}
+                              </div>
+                            ))
+                          )}
+                          {entry.photos && entry.photos.length > 0 && (
+                            <div
+                              className={styles.answerRow}
+                              style={{
+                                flexDirection: "column",
+                                alignItems: "flex-start",
+                                marginTop: "1rem",
+                              }}
+                            >
+                              <span className={styles.answerQ}>
+                                {t("attachedPhotos")}
                               </span>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  gap: "10px",
+                                  marginTop: "10px",
+                                  flexWrap: "wrap",
+                                }}
+                              >
+                                {entry.photos.map((p: any) => (
+                                  <Image
+                                    key={p.id}
+                                    src={p.uri}
+                                    alt={t("checkinPhotoAlt")}
+                                    width={120}
+                                    height={120}
+                                    unoptimized
+                                    style={{
+                                      width: "120px",
+                                      height: "120px",
+                                      objectFit: "cover",
+                                      borderRadius: "8px",
+                                    }}
+                                  />
+                                ))}
+                              </div>
                             </div>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+                          )}
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </section>
         </>
       )}
@@ -221,7 +288,7 @@ function Field({
   return (
     <div className={`${styles.field} ${wide ? styles.wide : ""}`}>
       <span className={styles.fieldLabel}>{label}</span>
-      <span className={styles.fieldValue}>{value ?? "—"}</span>
+      <span className={styles.fieldValue}>{value ?? t("emptyValue")}</span>
     </div>
   );
 }

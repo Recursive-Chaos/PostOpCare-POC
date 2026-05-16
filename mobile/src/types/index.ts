@@ -12,6 +12,10 @@ export type HistoryEntry = {
   pain: number;
   painSeverity: "low" | "moderate" | "high";
   temperatureC: number;
+  submittedAt?: string;
+  responses?: { question: string; answer: string }[];
+  notes?: string | null;
+  photos?: { id: number | string; uri: string }[];
 };
 
 export type Question = {
@@ -57,7 +61,9 @@ export type CheckinPayload = {
     answer_value: string;
   }[];
   photos: {
-    uri: string;
+    uri?: string;
+    base64?: string;
+    mimeType?: string;
     photo_type: string;
   }[];
 };

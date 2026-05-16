@@ -44,16 +44,6 @@ describe("Doctor Patients Management", () => {
     });
   };
 
-  const mockQuery = (search: string, result: any) => {
-    (db.query as any).mockImplementation((sql: string) => {
-      if (sql.includes(search)) {
-        return Promise.resolve({ rows: result });
-      }
-
-      return Promise.resolve({ rows: [] });
-    });
-  };
-
   describe("GET /", () => {
     it("should return patients for the logged-in doctor", async () => {
       setupAuth("doc-1");
@@ -167,6 +157,46 @@ describe("Doctor Patients Management", () => {
         expect.stringContaining("questionnaire_assignments"),
         ["existing-p-1", 7, null],
       );
+    });
+
+    it("should return a clear error when phone is already used", async () => {
+      setupAuth("doc-1");
+
+      (db.query as any).mockImplementation((sql: string) => {
+        if (sql.includes("role = 'doctor'"))
+          return Promise.resolve({ rows: [{ user_id: "doc-1" }] });
+        if (sql.includes("FROM postopcare.questionnaire_templates"))
+          return Promise.resolve({ rows: [{ template_id: 7 }] });
+        if (sql.includes("FROM postopcare.users WHERE email"))
+          return Promise.resolve({ rows: [] });
+        if (sql.includes("INSERT INTO postopcare.users")) {
+          return Promise.reject({
+            code: "23505",
+            constraint: "users_phone_key",
+          });
+        }
+        return Promise.resolve({ rows: [] });
+      });
+
+      (supabaseAdmin.auth.admin.listUsers as any).mockResolvedValue({
+        data: { users: [] },
+      });
+      (supabaseAdmin.auth.admin.createUser as any).mockResolvedValue({
+        data: { user: { id: "new-p-1" } },
+        error: null,
+      });
+
+      const res = await request(app)
+        .post(endpoint)
+        .set("Authorization", "Bearer token")
+        .send({
+          email: "new@patient.com",
+          patientPhone: "0712345678",
+          templateId: 7,
+        });
+
+      expect(res.status).toBe(409);
+      expect(res.body.error).toBe("numarul de telefon este deja folosit");
     });
 
     it("should reuse Supabase user if they exist in Auth but not in our DB", async () => {
