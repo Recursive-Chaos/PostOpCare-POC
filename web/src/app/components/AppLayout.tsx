@@ -39,7 +39,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className={styles.wrapper}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <div className={styles.logo}>PostOpCare</div>
+          <div className={styles.logo}>{t("appName")}</div>
           <div className={styles.doctor}>
             <span className={styles.doctorName}>
               {user.firstName} {user.lastName}

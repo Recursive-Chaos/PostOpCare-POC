@@ -7,6 +7,12 @@ import styles from "./page.module.css";
 import { t } from "@shared/translations";
 import { API_URL, authFetch } from "./lib/api";
 
+function uniquePatients(patients: any[]) {
+  return Array.from(
+    new Map(patients.map((patient) => [patient.user_id, patient])).values(),
+  );
+}
+
 export default function HomePage() {
   const router = useRouter();
   const [patients, setPatients] = useState<any[]>([]);
@@ -16,7 +22,7 @@ export default function HomePage() {
     async function fetchPatients() {
       try {
         const res = await authFetch(`${API_URL}/doctor/patients`);
-        if (res.ok) setPatients(await res.json());
+        if (res.ok) setPatients(uniquePatients(await res.json()));
       } catch (err) {
         console.error("Failed to fetch patients:", err);
       } finally {
@@ -31,14 +37,16 @@ export default function HomePage() {
       <div className={styles.pageHeader}>
         <h2 className={styles.pageTitle}>{t("patientsTitle")}</h2>
         {!loading && (
-          <span className={styles.count}>{patients.length} pacienti</span>
+          <span className={styles.count}>
+            {patients.length} {t("patientsCount")}
+          </span>
         )}
       </div>
 
       {loading ? (
         <p className={styles.hint}>{t("loading")}</p>
       ) : patients.length === 0 ? (
-        <p className={styles.hint}>Niciun pacient inregistrat.</p>
+        <p className={styles.hint}>{t("noPatients")}</p>
       ) : (
         <ul className={styles.list}>
           {patients.map((p) => (
@@ -55,10 +63,10 @@ export default function HomePage() {
                   {p.first_name} {p.last_name}
                 </span>
                 <span className={styles.cardMeta}>
-                  {p.surgery_type ?? "—"} &middot;{" "}
+                  {p.surgery_type ?? t("emptyValue")} &middot;{" "}
                   {p.surgery_date
                     ? new Date(p.surgery_date).toLocaleDateString("ro-RO")
-                    : "data necunoscuta"}
+                    : t("unknownDate")}
                 </span>
               </div>
               <span className={styles.cardArrow}>›</span>

@@ -23,7 +23,7 @@ import {
 type Props = {
   questionnaire: Questionnaire;
   onBack: () => void;
-  onDone: (payload: CheckinPayload) => void;
+  onDone: (payload: CheckinPayload) => void | Promise<void>;
 };
 
 export default function CheckinScreen({
@@ -55,22 +55,35 @@ export default function CheckinScreen({
 
     const result = await picker({
       mediaTypes: ["images"],
-      quality: 0.7, // 70% calitate, o sa fie mai mic fisieru
+      quality: 0.45, // mai mic pentru upload
+      base64: true,
     });
 
     if (!result.canceled) {
-      setAnswer(id, result.assets[0].uri); // punem uri in answers
+      const asset = result.assets[0];
+      setAnswer(
+        id,
+        JSON.stringify({
+          uri: asset.uri,
+          base64: asset.base64,
+          mimeType: asset.mimeType ?? "image/jpeg",
+        }),
+      );
     }
   }
 
-  function submit() {
+  async function submit() {
     if (hasMissingRequired(questionnaire.questions, answers)) {
       setError(t("checkinRequiredError"));
       return;
     }
 
     setError("");
-    onDone(buildCheckinPayload(questionnaire, answers));
+    try {
+      await onDone(buildCheckinPayload(questionnaire, answers));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("connError"));
+    }
   }
 
   return (

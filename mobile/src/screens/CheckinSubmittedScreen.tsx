@@ -2,28 +2,24 @@ import { Image, ScrollView, Text, View } from "react-native";
 import { t } from "@shared/translations";
 import { styles } from "../../App.styles";
 import { BackButton } from "../components/BackButton";
+import { CheckinPayload, Questionnaire } from "../types";
 
 type Props = {
+  questionnaire?: Questionnaire | null;
+  payload: CheckinPayload | null;
   onBack: () => void;
 };
 
-const TODAY_CHECKIN = {
-  sentAt: "09:24",
-  measurements: [
-    ["Durere", "4"],
-    ["Temperatura", "36.9 C"],
-  ],
-  responses: [
-    ["Ai avut febra?", "Nu"],
-    ["Aspect plaga", "Normal"],
-  ],
-  notes: "Ma simt mai bine decat ieri.",
-  photos: [
-    "https://images.unsplash.com/photo-1584362917165-526a968579e8?auto=format&fit=crop&w=900&q=70",
-  ],
-};
+export default function CheckinSubmittedScreen({
+  questionnaire,
+  payload,
+  onBack,
+}: Props) {
+  const rows = buildRows(questionnaire, payload);
+  const sentAt = new Date(
+    payload?.submitted_at ?? Date.now(),
+  ).toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" });
 
-export default function CheckinSubmittedScreen({ onBack }: Props) {
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.detailHeaderRow}>
@@ -39,7 +35,7 @@ export default function CheckinSubmittedScreen({ onBack }: Props) {
               {t("checkinSentSubtitle")}
             </Text>
             <Text style={styles.checkinDoneMeta}>
-              {t("checkinSentAtLabel")} {TODAY_CHECKIN.sentAt}
+              {t("checkinSentAtLabel")} {sentAt}
             </Text>
           </View>
         </View>
@@ -49,34 +45,61 @@ export default function CheckinSubmittedScreen({ onBack }: Props) {
             {t("checkinSentPreviewLabel")}
           </Text>
 
-          {TODAY_CHECKIN.measurements.map(([label, value]) => (
-            <PreviewRow key={label} label={label} value={value} />
+          {rows.map((row) => (
+            <PreviewRow key={row.label} label={row.label} value={row.value} />
           ))}
 
-          {TODAY_CHECKIN.responses.map(([label, value]) => (
-            <PreviewRow key={label} label={label} value={value} />
-          ))}
+          {payload?.general_notes ? (
+            <PreviewRow
+              label={t("checkinSentNotesLabel")}
+              value={payload.general_notes}
+            />
+          ) : null}
 
-          <PreviewRow
-            label={t("checkinSentNotesLabel")}
-            value={TODAY_CHECKIN.notes}
-          />
-
-          <View style={styles.checkinDonePhotos}>
-            {TODAY_CHECKIN.photos.map((uri) => (
-              <Image
-                key={uri}
-                source={{ uri }}
-                style={styles.checkinDonePhoto}
-              />
-            ))}
-          </View>
+          {payload?.photos.length ? (
+            <View style={styles.checkinDonePhotos}>
+              {payload.photos.map((photo, index) =>
+                photo.uri ? (
+                  <Image
+                    key={`${photo.uri}-${index}`}
+                    source={{ uri: photo.uri }}
+                    style={styles.checkinDonePhoto}
+                  />
+                ) : null,
+              )}
+            </View>
+          ) : null}
         </View>
 
         <Text style={styles.checkinDoneHint}>{t("checkinSentHint")}</Text>
       </View>
     </ScrollView>
   );
+}
+
+function buildRows(
+  questionnaire?: Questionnaire | null,
+  payload?: CheckinPayload | null,
+) {
+  if (!payload) return [];
+
+  const byQuestionId = new Map(
+    questionnaire?.questions.map((question) => [
+      question.questionId,
+      question.text,
+    ]) ?? [],
+  );
+
+  return [
+    ...payload.measurements.map((measurement) => ({
+      label: measurement.metric_name,
+      value: `${measurement.metric_value}${measurement.unit ? ` ${measurement.unit}` : ""}`,
+    })),
+    ...payload.responses.map((response) => ({
+      label: byQuestionId.get(response.question_id) ?? "Raspuns",
+      value: response.answer_value,
+    })),
+  ];
 }
 
 function PreviewRow({ label, value }: { label: string; value: string }) {

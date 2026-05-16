@@ -79,7 +79,7 @@ export default function LoginPage() {
   return (
     <div className={styles.wrapper}>
       <div className={styles.card}>
-        <div className={styles.logo}>PostOpCare</div>
+        <div className={styles.logo}>{t("appName")}</div>
         <h1 className={styles.title}>
           {step === "email" ? t("loginTitle") : t("enterCodeTitle")}
         </h1>

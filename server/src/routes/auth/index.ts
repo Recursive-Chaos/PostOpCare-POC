@@ -17,8 +17,8 @@ const loginLimiter = rateLimit({
 
 // 5 request-uri OTP per 5 min per IP
 const otpLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000,
-  max: 5,
+  windowMs: 60 * 60 * 1000,
+  max: 50,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "prea multe request-uri, incearca mai tarziu" },

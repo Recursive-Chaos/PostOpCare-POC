@@ -2,6 +2,11 @@ import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
 import { supabase } from "../../lib/supabase.js";
 import db from "../../db/index.js";
+import {
+  getUserProfile,
+  getDoctorProfile,
+  getPatientProfile,
+} from "../../db/queries.js";
 
 const router = Router();
 
@@ -29,18 +34,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     const userId = data.user.id;
 
     // preia profilul din DB
-    const userResult = await db.query<{
-      user_id: string;
-      email: string;
-      role: string;
-      first_name: string;
-      last_name: string;
-      is_active: boolean;
-    }>(
-      `SELECT user_id, email, role, first_name, last_name, is_active
-       FROM postopcare.users WHERE user_id = $1`,
-      [userId],
-    );
+    const userResult = await getUserProfile(db, userId);
 
     const user = userResult.rows[0];
 
@@ -59,17 +53,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     };
 
     if (user.role === "doctor") {
-      const doctorResult = await db.query<{
-        specialization: string;
-        notification_pref: string;
-        hospital_name: string | null;
-      }>(
-        `SELECT d.specialization, d.notification_pref, h.hospital_name
-         FROM postopcare.doctors d
-         LEFT JOIN postopcare.hospitals h ON h.hospital_id = d.hospital_id
-         WHERE d.user_id = $1`,
-        [userId],
-      );
+      const doctorResult = await getDoctorProfile(db, userId);
 
       const doctor = doctorResult.rows[0];
 
@@ -85,14 +69,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     }
 
     if (user.role === "patient") {
-      const patientResult = await db.query<{
-        doctor_id: string;
-        date_of_birth: string | null;
-      }>(
-        `SELECT doctor_id, date_of_birth
-         FROM postopcare.patients WHERE user_id = $1`,
-        [userId],
-      );
+      const patientResult = await getPatientProfile(db, userId);
 
       const patient = patientResult.rows[0];
 

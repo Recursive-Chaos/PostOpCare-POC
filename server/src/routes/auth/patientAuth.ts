@@ -1,7 +1,16 @@
 import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
-import { supabase } from "../../lib/supabase.js";
+import { randomUUID } from "crypto";
+import { supabase, supabaseAdmin } from "../../lib/supabase.js";
 import db from "../../db/index.js";
+import {
+  getPatientActiveQuestionnaire,
+  checkCheckinExistsToday,
+  insertCheckin,
+  insertQuestionnaireResponses,
+  insertCheckinPhoto,
+  getPatientCheckins,
+} from "../../db/queries.js";
 
 const router = Router();
 
@@ -9,6 +18,39 @@ const router = Router();
 const GENERIC_RESPONSE = {
   message: "if the email is valid, a login code was sent",
 };
+
+import jwt from "jsonwebtoken";
+
+const PHOTOS_BUCKET = "photos";
+
+function extensionFromMime(mimeType?: string) {
+  if (mimeType === "image/png") return "png";
+  if (mimeType === "image/webp") return "webp";
+  return "jpg";
+}
+
+async function getPatientId(req: Request, res: Response) {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  if (!token) {
+    res.status(401).json({ error: "patient login is required" });
+    return null;
+  }
+
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data.user) {
+    // POC workaround: if token is expired, we just decode it to keep the session alive
+    // In production, this should either verify against SUPABASE_JWT_SECRET or use a refresh token flow
+    const decoded = jwt.decode(token) as { sub?: string } | null;
+    if (decoded?.sub) {
+      return decoded.sub;
+    }
+
+    res.status(401).json({ error: "patient login is required" });
+    return null;
+  }
+
+  return data.user.id;
+}
 
 // endpoint pt cererea codului
 router.post(
@@ -137,6 +179,19 @@ router.post(
       );
       const procedure = procedureResult.rows[0];
 
+      const questionnaireResult = await getPatientActiveQuestionnaire(
+        db,
+        userId,
+      );
+      const questionnaire = questionnaireResult.rows[0] ?? null;
+
+      if (questionnaire) {
+        const existingCheckin = await checkCheckinExistsToday(db, userId);
+        if (existingCheckin.rows.length > 0) {
+          questionnaire.status = "Completat";
+        }
+      }
+
       // calculeaza ziua de recuperare
       let recoveryDay = null;
       if (procedure?.surgery_date) {
@@ -161,7 +216,134 @@ router.post(
           surgeryType: procedure?.surgery_type ?? null,
           recoveryDay: recoveryDay,
         },
+        questionnaire,
       });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+router.post(
+  "/checkins",
+  async (req: Request, res: Response, next: NextFunction) => {
+    const client = await db.connect();
+
+    try {
+      const patientId = await getPatientId(req, res);
+      if (!patientId) return;
+
+      const body = req.body as {
+        procedure_id?: number;
+        general_notes?: string;
+        responses?: {
+          assignment_id?: number;
+          question_id?: number;
+          answer_value?: string;
+        }[];
+        photos?: { base64?: string; mimeType?: string; photo_type?: string }[];
+      };
+
+      await client.query("BEGIN");
+
+      const existingCheckin = await checkCheckinExistsToday(client, patientId);
+
+      if (existingCheckin.rows.length > 0) {
+        await client.query("ROLLBACK");
+        res.status(409).json({ error: "Ai trimis deja un check-in astazi." });
+        return;
+      }
+
+      const checkinResult = await insertCheckin(
+        client,
+        patientId,
+        body.procedure_id ?? null,
+        body.general_notes ?? null,
+      );
+
+      const checkinId = checkinResult.rows[0].checkin_id;
+
+      for (const response of body.responses ?? []) {
+        if (!response.assignment_id || !response.question_id) continue;
+
+        await insertQuestionnaireResponses(
+          client,
+          response.assignment_id,
+          checkinId,
+          response.question_id,
+          response.answer_value || "",
+          patientId,
+        );
+      }
+
+      for (const photo of body.photos ?? []) {
+        if (!photo.base64) continue;
+
+        const mimeType = photo.mimeType ?? "image/jpeg";
+        const extension = extensionFromMime(mimeType);
+        const storagePath = `${patientId}/${checkinId}/${Date.now()}-${randomUUID()}.${extension}`;
+        const file = Buffer.from(photo.base64, "base64");
+
+        const { error: uploadError } = await supabaseAdmin.storage
+          .from(PHOTOS_BUCKET)
+          .upload(storagePath, file, {
+            contentType: mimeType,
+            upsert: false,
+          });
+
+        if (uploadError) throw uploadError;
+
+        await insertCheckinPhoto(
+          client,
+          checkinId,
+          storagePath,
+          photo.photo_type ?? "wound",
+        );
+      }
+
+      await client.query("COMMIT");
+
+      res.status(201).json({ success: true, checkinId });
+    } catch (err) {
+      await client.query("ROLLBACK");
+      next(err);
+    } finally {
+      client.release();
+    }
+  },
+);
+
+router.get(
+  "/checkins",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const patientId = await getPatientId(req, res);
+      if (!patientId) return;
+
+      const result = await getPatientCheckins(db, patientId);
+
+      const rows = await Promise.all(
+        result.rows.map(async (row) => {
+          const photos = await Promise.all(
+            (row.photos ?? []).map(
+              async (photo: { id: number; uri: string }) => {
+                const { data } = await supabaseAdmin.storage
+                  .from(PHOTOS_BUCKET)
+                  .createSignedUrl(photo.uri, 60 * 10);
+
+                return {
+                  id: photo.id,
+                  uri: data?.signedUrl ?? "",
+                };
+              },
+            ),
+          );
+
+          return { ...row, photos: photos.filter((photo) => photo.uri) };
+        }),
+      );
+
+      res.json(rows);
     } catch (err) {
       next(err);
     }

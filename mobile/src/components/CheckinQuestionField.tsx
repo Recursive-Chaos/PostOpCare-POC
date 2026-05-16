@@ -13,6 +13,7 @@ import { styles } from "../../App.styles";
 import { Question } from "../types";
 import {
   numberRange,
+  photoPreviewUri,
   questionOptions,
   questionRange,
   questionType,
@@ -135,15 +136,16 @@ function ActionButton({
 
 function PhotoField({ value, onPickPhoto, onTakePhoto }: Props) {
   const [previewOpen, setPreviewOpen] = useState(false);
+  const uri = photoPreviewUri(value);
 
   return (
     <>
-      {value ? (
+      {uri ? (
         <TouchableOpacity
           activeOpacity={0.9}
           onPress={() => setPreviewOpen(true)}
         >
-          <Image source={{ uri: value }} style={styles.checkinPhoto} />
+          <Image source={{ uri }} style={styles.checkinPhoto} />
           <Text style={styles.checkinPhotoHint}>
             {t("checkinPhotoPreview")}
           </Text>
@@ -175,7 +177,7 @@ function PhotoField({ value, onPickPhoto, onTakePhoto }: Props) {
             centerContent
           >
             <Image
-              source={{ uri: value }}
+              source={{ uri }}
               style={styles.photoFullImage}
               resizeMode="contain"
             />

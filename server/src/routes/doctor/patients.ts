@@ -2,6 +2,18 @@ import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
 import { supabase, supabaseAdmin } from "../../lib/supabase.js";
 import db from "../../db/index.js";
+import {
+  getDoctorPatients,
+  checkDoctorExists,
+  checkPatientBelongsToDoctor,
+  insertProcedure,
+  upsertPatient,
+  insertQuestionnaireAssignmentWithDates,
+  getPatientCheckins,
+  getUserByEmail,
+  insertUser,
+  checkTemplateExists,
+} from "../../db/queries.js";
 
 const router = Router();
 
@@ -116,11 +128,7 @@ router.post(
         }
       }
 
-      const doctorResult = await db.query<{ user_id: string }>(
-        `SELECT user_id FROM postopcare.users
-         WHERE user_id = $1 AND role = 'doctor' AND is_active = true`,
-        [doctorId],
-      );
+      const doctorResult = await checkDoctorExists(db, doctorId);
 
       if (doctorResult.rows.length === 0) {
         res.status(403).json({ error: "doctor not found" });
@@ -132,25 +140,18 @@ router.post(
         return;
       }
 
-      const templateResult = await db.query(
-        `SELECT template_id FROM postopcare.questionnaire_templates
-           WHERE template_id = $1 AND doctor_id = $2`,
-        [templateId, doctorId],
+      const templateExists = await checkTemplateExists(
+        db,
+        templateId,
+        doctorId,
       );
 
-      if (templateResult.rows.length === 0) {
+      if (!templateExists) {
         res.status(400).json({ error: "invalid questionnaire" });
         return;
       }
 
-      const existingUser = await db.query<{
-        user_id: string;
-        role: string;
-      }>(
-        `SELECT user_id, role
-         FROM postopcare.users WHERE email = $1`,
-        [normalizedEmail],
-      );
+      const existingUser = await getUserByEmail(db, normalizedEmail);
 
       const user = existingUser.rows[0];
 
@@ -206,49 +207,56 @@ router.post(
 
         patientId = supabaseUserId;
 
-        await db.query(
-          `INSERT INTO postopcare.users
-           (user_id, email, password_hash, role, first_name, last_name, phone, is_active)
-           VALUES ($1, $2, $3, 'patient', $4, $5, $6, true)`,
-          [
+        try {
+          await insertUser(
+            db,
             patientId,
             normalizedEmail,
-            "managed_by_supabase",
             patientFirstName,
             patientLastName,
             phone,
-          ],
-        );
+          );
+        } catch (err) {
+          if (
+            typeof err === "object" &&
+            err !== null &&
+            "code" in err &&
+            err.code === "23505" &&
+            "constraint" in err &&
+            err.constraint === "users_phone_key"
+          ) {
+            res
+              .status(409)
+              .json({ error: "numarul de telefon este deja folosit" });
+            return;
+          }
+
+          throw err;
+        }
       }
 
-      await db.query(
-        `INSERT INTO postopcare.patients (user_id, doctor_id, date_of_birth, notes)
-         VALUES ($1, $2, $3, $4)
-         ON CONFLICT (user_id)
-         DO UPDATE SET doctor_id = EXCLUDED.doctor_id,
-                       date_of_birth = EXCLUDED.date_of_birth,
-                       notes = EXCLUDED.notes`,
-        [patientId, doctorId, valueOrNull(dateOfBirth), valueOrNull(notes)],
+      await upsertPatient(
+        db,
+        patientId,
+        doctorId,
+        valueOrNull(dateOfBirth),
+        valueOrNull(notes),
       );
 
-      await db.query(
-        `INSERT INTO postopcare.procedures
-         (patient_id, surgery_type, surgery_date, discharge_date, monitoring_end_date)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [
-          patientId,
-          valueOrNull(surgeryType),
-          valueOrNull(surgeryDate),
-          valueOrNull(dischargeDate),
-          valueOrNull(monitoringEndDate),
-        ],
+      await insertProcedure(
+        db,
+        patientId,
+        valueOrNull(surgeryType) || "N/A",
+        valueOrNull(surgeryDate),
+        valueOrNull(dischargeDate),
+        valueOrNull(monitoringEndDate),
       );
 
-      await db.query(
-        `INSERT INTO postopcare.questionnaire_assignments
-           (patient_id, template_id, frequency, start_date, end_date)
-           VALUES ($1, $2, 'daily', CURRENT_DATE, $3)`,
-        [patientId, templateId, valueOrNull(monitoringEndDate)],
+      await insertQuestionnaireAssignmentWithDates(
+        db,
+        patientId,
+        templateId,
+        valueOrNull(monitoringEndDate),
       );
 
       res
@@ -278,23 +286,73 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 
     const doctorId = authData.user.id;
 
-    const result = await db.query(
-      `SELECT 
-          u.user_id, u.email, u.first_name, u.last_name, u.phone,
-          p.date_of_birth, p.notes,
-          proc.surgery_type, proc.surgery_date, proc.discharge_date, proc.monitoring_end_date
-         FROM postopcare.users u
-         JOIN postopcare.patients p ON u.user_id = p.user_id
-         LEFT JOIN postopcare.procedures proc ON u.user_id = proc.patient_id
-         WHERE p.doctor_id = $1
-         ORDER BY proc.surgery_date DESC NULLS LAST`,
-      [doctorId],
-    );
+    const result = await getDoctorPatients(db, doctorId);
 
     res.json(result.rows);
   } catch (err) {
     next(err);
   }
 });
+
+// GET /doctor/patients/:id/checkins
+router.get(
+  "/:id/checkins",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      if (!token) {
+        res.status(401).json({ error: "doctor login is required" });
+        return;
+      }
+
+      const { data: authData, error: authError } =
+        await supabase.auth.getUser(token);
+      if (authError || !authData.user) {
+        res.status(401).json({ error: "doctor login is required" });
+        return;
+      }
+
+      const patientId = req.params.id as string;
+      const doctorId = authData.user.id;
+
+      const belongs = await checkPatientBelongsToDoctor(
+        db,
+        patientId,
+        doctorId,
+      );
+      if (belongs.rows.length === 0) {
+        res.status(403).json({ error: "patient not found or access denied" });
+        return;
+      }
+
+      const result = await getPatientCheckins(db, patientId);
+
+      const rows = await Promise.all(
+        result.rows.map(async (row) => {
+          const photos = await Promise.all(
+            (row.photos ?? []).map(
+              async (photo: { id: number; uri: string }) => {
+                const { data } = await supabaseAdmin.storage
+                  .from("photos")
+                  .createSignedUrl(photo.uri, 60 * 10);
+
+                return {
+                  id: photo.id,
+                  uri: data?.signedUrl ?? "",
+                };
+              },
+            ),
+          );
+
+          return { ...row, photos: photos.filter((photo) => photo.uri) };
+        }),
+      );
+
+      res.json(rows);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 export default router;
