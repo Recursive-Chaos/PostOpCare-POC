@@ -33,20 +33,20 @@ PostOpCare (POC) este un proiect pentru monitorizarea pacientilor dupa operatie.
 - [x] Lista de pacienti: tabel cu toti pacientii arondati
 - [x] Invitatie pacient: buton de adaugat pacient nou (genereaza cod)
 - [x] Detalii pacient: istoric check-in-uri si poze
-- [ ] Sistem de alerte: notificari vizuale pentru valori critice (ex: febra)
+- [x] Sistem de alerte: notificari vizuale pentru valori critice (ex: febra)
 - [x] Dashboard creare chestionar pentru evolutie pacienti
 
 ### 4. Aplicatie Pacient (Mobile)
 
 - [x] Setup initial Expo
 - [x] Ecran login cu cod
-- [ ] Formular Check-in: durere (1-10), temperatura, observatii
-- [ ] Upload poza: trimitere poza cu plaga direct la Supabase Storage
-- [ ] Istoric trimiteri: ce a trimis pacientul in ultimele zile
+- [x] Formular Check-in: durere (1-10), temperatura, observatii
+- [x] Upload poza: trimitere poza cu plaga direct la Supabase Storage
+- [x] Istoric trimiteri: ce a trimis pacientul in ultimele zile
 
 ### 5. Backend & Logica (Server)
 
 - [x] Endpoint-uri Auth (request-code, verify-code)
-- [ ] Endpoint-uri Pacienti: get lista, post check-in
+- [x] Endpoint-uri Pacienti: get lista, post check-in
 - [ ] Logica de alertare: serverul verifica datele si trimite email/notificare daca e ceva grav
-- [ ] Integrare Supabase Storage pentru poze
+- [x] Integrare Supabase Storage pentru poze
